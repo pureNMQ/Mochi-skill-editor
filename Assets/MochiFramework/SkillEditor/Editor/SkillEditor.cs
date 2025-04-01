@@ -45,7 +45,7 @@ namespace MochiFramework.Skill.Editor
             InitController();
 
 
-            //临时测试
+            //TODO 临时测试.技能配置
             SkillConfig tempConfig = ScriptableObject.CreateInstance<SkillConfig>();
             tempConfig.name = "Temp Skill";
             tempConfig.SkillName = "Temp Skill";
@@ -84,10 +84,35 @@ namespace MochiFramework.Skill.Editor
             SkillInfoButton.clicked += OnClickSkillInfoButton;
 
             PreviewPrefabField.objectType = typeof(GameObject);
-            SkillConfigField.objectType = typeof(SkillConfig);
-
             PreviewPrefabField.RegisterValueChangedCallback(OnPreviewPrefabValueChanged);
+
+            SkillConfigField.objectType = typeof(SkillConfig);
             SkillConfigField.RegisterValueChangedCallback(OnSkillConfigValueChanged);
+        }
+
+        //切换至预览场景
+        private void OnClickPreviewSceneButton()
+        {
+            if (IsPreview) return;
+
+            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                lastGameScenePath = EditorSceneManager.GetActiveScene().path;
+                EditorSceneManager.OpenScene(previewScenePath);
+                ShowPreviewCharacter();
+            }
+        }
+
+        private void OnClickGameSceneButton()
+        {
+            if (!IsPreview || string.IsNullOrEmpty(lastGameScenePath)) return;
+
+            EditorSceneManager.OpenScene(lastGameScenePath);
+        }
+
+        private void OnClickSkillInfoButton()
+        {
+
         }
 
         private void OnPreviewPrefabValueChanged(ChangeEvent<UnityEngine.Object> evt)
@@ -103,34 +128,6 @@ namespace MochiFramework.Skill.Editor
         private void OnSkillConfigValueChanged(ChangeEvent<UnityEngine.Object> evt)
         {
             SetSkillConfig(evt.newValue as SkillConfig);
-        }
-
-
-        private void OnClickSkillInfoButton()
-        {
-
-        }
-
-
-        private void OnClickGameSceneButton()
-        {
-            if (!IsPreview || string.IsNullOrEmpty(lastGameScenePath)) return;
-
-            EditorSceneManager.OpenScene(lastGameScenePath);
-        }
-
-        //切换至预览场景
-        private void OnClickPreviewSceneButton()
-        {
-            if (IsPreview) return;
-
-            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-            {
-                lastGameScenePath = EditorSceneManager.GetActiveScene().path;
-                EditorSceneManager.OpenScene(previewScenePath);
-                ShowPreviewCharacter();
-            }
-
         }
         #endregion
 
@@ -195,6 +192,7 @@ namespace MochiFramework.Skill.Editor
             TrackContainerView.horizontalScroller.value = rePos * skillEditorConfig.frameUnitWidth;
 
             UpdateTrackViewSize();
+            UpdateTrack(false);
             TimeShaft.MarkDirtyLayout();
             SelectLine.MarkDirtyLayout();
         }
@@ -315,20 +313,31 @@ namespace MochiFramework.Skill.Editor
         {
             TrackContainerView.contentContainer.style.width = TotalFrame * skillEditorConfig.frameUnitWidth;
         }
-
-
-        private void UpdateTrack()
+        
+        /// <summary>
+        /// 当Track数量发生变化或者更换技能配置文件时，请将isClear设为true
+        /// </summary>
+        /// <param name="isClear"></param>
+        private void UpdateTrack(bool isClear = true)
         {
-            ClearTrack();
-            if (skillConfig == null) return;
-
-            foreach (var track in skillConfig.tracks)
+            if (isClear || skillConfig is null)
             {
-                Debug.Log("添加一个轨道");
-                TrackView tv = new TrackView(track, TrackMenuContainer, ClipTrackContainer, this);
-                trackViews.Add(tv);
+                ClearTrack();
+                if (skillConfig == null) return;
+                foreach (var track in skillConfig.tracks)
+                {
+                    TrackView tv = new TrackView(track, TrackMenuContainer, ClipTrackContainer, this);
+                    trackViews.Add(tv);
+                    tv.Update(skillEditorConfig.frameUnitWidth);
+                }
             }
-
+            else if(trackViews is not null)
+            {
+                foreach (var tv in trackViews)
+                {
+                    tv.Update(skillEditorConfig.frameUnitWidth);
+                }
+            }
         }
 
         /// <summary>
@@ -510,7 +519,7 @@ namespace MochiFramework.Skill.Editor
             TimeShaft.MarkDirtyLayout();
             SelectLine.MarkDirtyLayout();
 
-            UpdateTrack();
+            UpdateTrack(true);
         }
 
         #endregion

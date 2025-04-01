@@ -11,19 +11,38 @@ namespace MochiFramework.Skill
         {
             clips = new List<AnimationClip>();
         }
-
-        public void Add(int startFrame, UnityEngine.AnimationClip animationClip)
-        {
-            clips.Add(new AnimationClip(startFrame, animationClip));
-        }
-
+        
         public override bool CanConvertToClip(object obj)
         {
             return obj is UnityEngine.AnimationClip;
         }
 
-        public override bool CanInsertClipAtFrame(int index)
+        public override bool CanInsertClipAtFrame(int startFrame,int duration, out int correctionDuration)
         {
+            correctionDuration = duration;
+            foreach (var item in clips)
+            {
+                //不允许插入到另一个Clip中间
+                //情况一:插入Clip的起始点位于另一个Clip中
+                if (startFrame >= item.StartFrame && startFrame < item.EndFrame)
+                {
+                    Debug.Log("不可插入到其他Clip中");
+                    correctionDuration = 0;
+                    return false;
+                }
+                //情况二:插入Clip的结束点位于另一个Clip中
+                if (startFrame < item.StartFrame && startFrame + duration >= item.StartFrame)
+                {
+                    int offset = item.StartFrame - startFrame;
+                    if (offset < correctionDuration)
+                    {
+                        correctionDuration = offset;
+                    }
+                }
+                
+                //情况三:插入Clip的结束点位于Track长度之外
+            }
+            
             return true;
         }
 
@@ -35,10 +54,26 @@ namespace MochiFramework.Skill
             }
         }
 
+        public override IEnumerator<Clip> GetEnumerator()
+        {
+            return clips.GetEnumerator();
+        }
+
         public void InsertClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
         {
-            AnimationClip clip = new AnimationClip(startFrame, animationClip);
-            clips.Add(clip);
+            int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
+            if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
+            {
+                AnimationClip clip = new AnimationClip(startFrame, animationClip,correctionDuration); 
+                Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration}");
+                clips.Add(clip);
+
+                foreach (var item in clips)
+                {
+                    Debug.Log(item);
+                }
+            }
+            
         }
     }
 }
