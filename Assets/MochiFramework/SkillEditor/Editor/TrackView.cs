@@ -18,6 +18,8 @@ namespace MochiFramework.Skill.Editor
         private VisualElement trackMenuView;
         //位于编辑器右侧，显示轨道中的片段
         private VisualElement trackClipView;
+
+        private Label trackTitle;
         
         private List<ClipView> clipViews;
 
@@ -35,6 +37,8 @@ namespace MochiFramework.Skill.Editor
             this.trackClipParent = trackClipParent;
             trackMenuView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(MENU_ASSET_PATH).Instantiate().ElementAt(0);
             trackMenuParent.Add(trackMenuView);
+            trackTitle = trackMenuView.Q<Label>();
+            trackTitle.text = track.TrackName;
 
             trackClipView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate().ElementAt(0);
             trackClipParent.Add(trackClipView);
@@ -56,7 +60,7 @@ namespace MochiFramework.Skill.Editor
             foreach (var clip in track)
             {
                 ClipView cv = new ClipView();
-                cv.Init(trackClipView,clip,frameUnitWidth);
+                cv.Init(skillEditor,trackClipView,track,clip,frameUnitWidth);
             }
         }
         
@@ -79,7 +83,7 @@ namespace MochiFramework.Skill.Editor
 
             if (track.CanConvertToClip(objects[0]))
             {
-                int selectFramIndex = skillEditor.GetFrameIndexByMousePos(evt.localMousePosition);
+                int selectFramIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
                 track.InsertClipAtFrame(selectFramIndex, objects[0]);
                 Update();
             }

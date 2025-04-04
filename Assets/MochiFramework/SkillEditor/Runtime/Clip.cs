@@ -10,7 +10,7 @@ namespace MochiFramework.Skill
         public abstract string ClipName { get; }
         public int StartFrame { get => startFrame; set => startFrame = value; }
         public int EndFrame {get => startFrame + duration;}
-        public int Duration => duration;
+        public int Duration { get => duration; set => duration = value; }
 
         protected int startFrame;
         protected int duration;

@@ -1,7 +1,9 @@
 {
     "name": "MochiFramework.Skill",
     "rootNamespace": "MochiFramework.Skill",
-    "references": [],
+    "references": [
+        "GUID:f03ecf483ff43ef4b96c4279d055e799"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

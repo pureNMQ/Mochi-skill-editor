@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
+    // [SkillEditorClip("#436036")]
     public class AnimationClip : Clip
     {
         public override string ClipName => clip ? clip.name : "NoAnimationClip";

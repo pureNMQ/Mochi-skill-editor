@@ -165,7 +165,7 @@ namespace MochiFramework.Skill.Editor
         private void OnMouseDownTimeShaft(MouseDownEvent evt)
         {
             skillEditorConfig.selectLineDragging = true;
-            SelectFrame = GetFrameIndexByMousePos(evt.localMousePosition);
+            SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
         }
 
         private void OnMouseUpTimeShaft(MouseUpEvent evt)
@@ -176,7 +176,7 @@ namespace MochiFramework.Skill.Editor
         {
             if (skillEditorConfig.selectLineDragging)
             {
-                SelectFrame = GetFrameIndexByMousePos(evt.localMousePosition);
+                SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
 
             }
         }
@@ -459,6 +459,8 @@ namespace MochiFramework.Skill.Editor
         #endregion
 
         #region SkillConfig
+
+        public SkillConfig SkillConfig => skillConfig;
         private SkillConfig skillConfig;
         private SkillEditorConfig skillEditorConfig;
 
@@ -554,7 +556,7 @@ namespace MochiFramework.Skill.Editor
 
         public int GetFrameIndexByMousePos(Vector2 mousePos)
         {
-            float localPos = mousePos.x + contentOffsetX;
+            float localPos = TrackContainerView.WorldToLocal(mousePos).x + contentOffsetX;
             int index = Mathf.FloorToInt(localPos / skillEditorConfig.frameUnitWidth);
 
             if (index > TotalFrame)
