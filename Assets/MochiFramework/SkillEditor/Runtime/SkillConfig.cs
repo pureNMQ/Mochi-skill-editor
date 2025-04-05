@@ -5,10 +5,11 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
+    [CreateAssetMenu(menuName = "Skill")]
     public class SkillConfig : ScriptableObject
     {
         public string SkillName;
         public int FrameCount;
-        public List<Track> tracks;
+        public List<Track> tracks = new List<Track>(){new AnimationTrack()};
     }
 }

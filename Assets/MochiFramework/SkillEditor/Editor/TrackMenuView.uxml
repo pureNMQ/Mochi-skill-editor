@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/MochiFramework/SkillEditor/Editor/SkillEditor.uss?fileID=7433441132597879392&amp;guid=f77f70ea15db8a643a245e94177ddd11&amp;type=3#SkillEditor" />
-    <ui:VisualElement name="TrackMenuView" focusable="true" style="width: auto; height: 40px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 2px; margin-right: 5px; margin-bottom: 2px; margin-left: 5px;">
+    <ui:VisualElement name="TrackMenuView" focusable="true" class="Info" style="width: auto; height: 40px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 2px; margin-right: 5px; margin-bottom: 2px; margin-left: 5px;">
         <ui:Label text="Label" display-tooltip-when-elided="true" style="flex-basis: 100%; -unity-text-align: middle-center; font-size: 15px;" />
     </ui:VisualElement>
 </ui:UXML>

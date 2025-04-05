@@ -21,7 +21,6 @@ namespace MochiFramework.Skill.Editor
             SkillEditor wnd = GetWindow<SkillEditor>();
             wnd.titleContent = new GUIContent("技能编辑器");
             wnd.titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>(iconPath);
-
         }
 
         public void CreateGUI()
@@ -37,13 +36,15 @@ namespace MochiFramework.Skill.Editor
             // A stylesheet can be added to a VisualElement.
             // The style will be applied to the VisualElement and all of its children.
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/MochiFramework/SkillEditor/Editor/SkillEditor.uss");
-
+            root.styleSheets.Add(styleSheet);
+            
             skillEditorConfig = new SkillEditorConfig();
             InitTopMenu();
             InitTimeShaft();
             InitTrackView();
             InitController();
 
+            Undo.undoRedoEvent += OnUndoRedo;
 
             //TODO 临时测试.技能配置
             SkillConfig tempConfig = ScriptableObject.CreateInstance<SkillConfig>();
@@ -55,6 +56,18 @@ namespace MochiFramework.Skill.Editor
             tempConfig.tracks.Add(new AnimationTrack());
 
             SkillConfigField.value = tempConfig;
+        }
+
+        private void OnUndoRedo(in UndoRedoInfo undo)
+        {
+            
+            switch (undo.undoName)
+            {
+                case "Move Clip":
+                case "Insert Clip":
+                    UpdateTrack();
+                    break;
+            }
         }
 
         #region TopMenu
@@ -561,7 +574,7 @@ namespace MochiFramework.Skill.Editor
 
             if (index > TotalFrame)
             {
-                return -1;
+                return TotalFrame - 1;
             }
 
             return index;

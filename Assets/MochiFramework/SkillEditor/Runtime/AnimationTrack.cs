@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MochiFramework.Skill
@@ -67,27 +68,33 @@ namespace MochiFramework.Skill
             int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
             {
+                //TODO 使用ScriptableObject创建对象，并且使用AssetDatabase.AddObjectToAsset将对象附加到SkillConfig上
                 AnimationClip clip = new AnimationClip(startFrame, animationClip,correctionDuration); 
                 Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration}");
                 clips.Add(clip);
-
+                clips = clips.OrderBy(clip => clip.StartFrame).ToList();
                 foreach (var item in clips)
                 {
                     Debug.Log(item);
                 }
+                
+                
             }
         }
 
         public override void MoveClipToFrame(Clip clip, int startFrame)
         {
-            if (clip is AnimationClip animationClip && clips.Contains(animationClip))
-            {
-                if (CanInsertClipAtFrame(startFrame, clip.Duration, out int correctionDuration, clip))
-                {
-                    clip.StartFrame = startFrame;
-                    clip.Duration = correctionDuration;
-                }
-            }
+            //类型验证，权限范围验证
+            if (clip is not AnimationClip animationClip || !clips.Contains(animationClip)) return;
+            //判断是否可以移动到该为止
+            if (!CanInsertClipAtFrame(startFrame, clip.Duration, out int correctionDuration, clip)) return;
+            //判断插入时长度是否被修正，如果被修正则不可以移动
+            if (clip.Duration != correctionDuration) return;
+            
+            clip.StartFrame = startFrame;
+            
+            clips = clips.OrderBy(clip => clip.StartFrame).ToList();
+
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,7 @@ using UnityEngine;
 namespace MochiFramework.Skill
 {
     //TODO 应该继承ScriptableObject,以便持久化存储
+    [Serializable]
     public abstract class Track : IEnumerable<Clip>
     {
         public abstract string TrackName { get; }

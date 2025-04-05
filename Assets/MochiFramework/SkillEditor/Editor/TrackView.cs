@@ -40,6 +40,7 @@ namespace MochiFramework.Skill.Editor
             trackTitle = trackMenuView.Q<Label>();
             trackTitle.text = track.TrackName;
 
+            //TODO 设置trackClipView的长度为SkillConf的最长长度
             trackClipView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate().ElementAt(0);
             trackClipParent.Add(trackClipView);
 
@@ -51,7 +52,6 @@ namespace MochiFramework.Skill.Editor
 
         public void Update()
         {
-            //TODO 只刷新内容
             //清空ClipViews
             clipViews.Clear();
             trackClipView.Clear();
@@ -66,7 +66,6 @@ namespace MochiFramework.Skill.Editor
         
         public void Update(float frameUnitWidth)
         {
-            //TODO 刷新视图
             this.frameUnitWidth = frameUnitWidth;
             Update();
         }
@@ -84,6 +83,7 @@ namespace MochiFramework.Skill.Editor
             if (track.CanConvertToClip(objects[0]))
             {
                 int selectFramIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
+                Undo.RegisterCompleteObjectUndo(skillEditor.SkillConfig, "Insert Clip");
                 track.InsertClipAtFrame(selectFramIndex, objects[0]);
                 Update();
             }

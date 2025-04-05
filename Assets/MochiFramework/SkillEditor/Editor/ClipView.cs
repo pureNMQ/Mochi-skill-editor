@@ -97,8 +97,11 @@ namespace MochiFramework.Skill.Editor
         private void OnMouseOut(MouseOutEvent evt)
         {
             root.style.backgroundColor = normalColor;
-            isDrag = false;
-            ApplyDrag();
+            if (isDrag)
+            {
+                isDrag = false;
+                ApplyDrag();
+            }
         }
 
         private void SetPosition(int frame)
@@ -128,17 +131,14 @@ namespace MochiFramework.Skill.Editor
         private void ApplyDrag()
         {
             //TODO 重新设置Clip的位置，并且提供撤回功能
-            
-            
+            Debug.Log("Apply Drag");
             int frame = skillEditor.GetFrameIndexByMousePos(dragStartPos);
             if (frame < 0)
             {
                 frame = 0;
             }
             
-            //Undo.RecordObject(skillEditor.SkillConfig, "Move Clip");
-            Debug.Log($"Track：{track}");
-            Debug.Log($"Clip：{clip}");
+            Undo.RegisterCompleteObjectUndo(skillEditor.SkillConfig,"Move Clip");
             track.MoveClipToFrame(clip,frame);
             
             //重新设置View的位置
