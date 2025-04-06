@@ -56,16 +56,31 @@ namespace MochiFramework.Skill.Editor
             root.RegisterCallback<MouseMoveEvent>(OnMouseMove);
             root.RegisterCallback<MouseOutEvent>(OnMouseOut);
             root.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
+            root.RegisterCallback<FocusEvent>(OnFocus);
+        }
+
+        private void OnFocus(FocusEvent evt)
+        {
+            Selection.activeObject = clip;
         }
 
 
         private void OnMouseDown(MouseDownEvent evt)
         {
-            root.style.backgroundColor = selectedColor;
-            isDrag = true;
-            dragOffestPos = (Vector2)root.worldTransform.GetPosition() - evt.mousePosition;
+            if (evt.button == 0)
+            {
+                root.style.backgroundColor = selectedColor;
+                isDrag = true;
+                dragOffestPos = (Vector2)root.worldTransform.GetPosition() - evt.mousePosition;
+            }
+            else if(evt.button == 1)
+            {
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Delete"), false, Delete);
+                menu.ShowAsContext();
+            }
         }
-        
+
         private void OnMouseMove(MouseMoveEvent evt)
         {
             if (isDrag)
@@ -84,9 +99,12 @@ namespace MochiFramework.Skill.Editor
         
         private void OnMouseUp(MouseUpEvent evt)
         {
-            root.style.backgroundColor = hoverColor;
-            isDrag = false;
-            ApplyDrag();
+            if (evt.button == 0)
+            {
+                root.style.backgroundColor = hoverColor;
+                isDrag = false;
+                ApplyDrag();
+            }
         }
         
         private void OnMouseEnter(MouseEnterEvent evt)
@@ -138,11 +156,22 @@ namespace MochiFramework.Skill.Editor
                 frame = 0;
             }
             
-            Undo.RegisterCompleteObjectUndo(skillEditor.SkillConfig,"Move Clip");
+            Undo.RegisterCompleteObjectUndo(clip,"Move Clip");
             track.MoveClipToFrame(clip,frame);
             
             //重新设置View的位置
             SetPosition(clip.StartFrame);
+        }
+        
+        private void Delete()
+        {
+            Undo.RegisterCompleteObjectUndo(new Object[]{track,clip},"Delete Clip");
+            
+            track.RemoveClip(clip);
+            Object.DestroyImmediate(clip,true);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            skillEditor.UpdateTrack();
         }
         
     }

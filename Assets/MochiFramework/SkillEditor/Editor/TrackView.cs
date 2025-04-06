@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace MochiFramework.Skill.Editor
 {
@@ -48,6 +49,12 @@ namespace MochiFramework.Skill.Editor
             
             trackClipView.RegisterCallback<DragUpdatedEvent>(OnDragUpdate);
             trackClipView.RegisterCallback<DragExitedEvent>(OnDragExited);
+            trackMenuView.RegisterCallback<FocusEvent>(OnFocus);
+        }
+
+        private void OnFocus(FocusEvent evt)
+        {
+            Selection.activeObject = track;
         }
 
         public void Update()
@@ -82,12 +89,19 @@ namespace MochiFramework.Skill.Editor
 
             if (track.CanConvertToClip(objects[0]))
             {
-                int selectFramIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
-                Undo.RegisterCompleteObjectUndo(skillEditor.SkillConfig, "Insert Clip");
-                Clip newClip = track.InsertClipAtFrame(selectFramIndex, objects[0]);
+                //BUG 只能撤回，不能重做，可能是重做的过程中新建了一个Clip对象，而Track引用的还是旧的Clip对象，导致引用错误
+                
+                Undo.RegisterCompleteObjectUndo(track,"Insert Clip");
+                int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
+                Clip newClip = track.InsertClipAtFrame(selectFrameIndex, objects[0]);
                 
                 //保存数据
                 AssetDatabase.AddObjectToAsset(newClip,track);
+                
+                //使用Undo.RegisterCompleteObjectUndo可以避免无法重做的bug，但是撤回的时候该对象不会被销毁
+                Undo.RegisterCreatedObjectUndo(newClip,"Insert Clip");
+                Undo.IncrementCurrentGroup();
+                
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 

@@ -13,6 +13,7 @@ namespace MochiFramework.Skill
         public abstract bool CanConvertToClip(object obj);
         public abstract bool CanInsertClipAtFrame(int startFrame,int duration,out int correctionDuration,Clip ignoreClip = null);
         public abstract Clip InsertClipAtFrame(int startFrame, object obj);
+        public abstract Clip RemoveClip(Clip clip);
         public abstract void MoveClipToFrame(Clip clip, int startFrame);
         public abstract IEnumerator<Clip> GetEnumerator();
 

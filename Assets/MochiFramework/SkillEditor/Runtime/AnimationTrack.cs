@@ -61,6 +61,13 @@ namespace MochiFramework.Skill
             return clips.GetEnumerator();
         }
 
+        public static AnimationTrack CreateAnimationTrack()
+        {
+            AnimationTrack animationTrack = CreateInstance<AnimationTrack>();
+            animationTrack.name = "AnimationTrack";
+            return animationTrack;
+        }
+
         public Clip InsertClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
         {
             int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
@@ -90,6 +97,16 @@ namespace MochiFramework.Skill
             
             clips = clips.OrderBy(clip => clip.StartFrame).ToList();
 
+        }
+
+        public override Clip RemoveClip(Clip clip)
+        {
+            if (clip is AnimationClip animationClip)
+            {
+                clips.Remove(animationClip);
+            }
+            
+            return clip;    
         }
     }
 }

@@ -60,12 +60,14 @@ namespace MochiFramework.Skill.Editor
 
         private void OnUndoRedo(in UndoRedoInfo undo)
         {
-            
             switch (undo.undoName)
             {
                 case "Move Clip":
                 case "Insert Clip":
+                case "Delete Clip":
                     UpdateTrack();
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
                     break;
             }
         }
@@ -331,7 +333,7 @@ namespace MochiFramework.Skill.Editor
         /// 当Track数量发生变化或者更换技能配置文件时，请将isClear设为true
         /// </summary>
         /// <param name="isClear"></param>
-        private void UpdateTrack(bool isClear = true)
+        public void UpdateTrack(bool isClear = true)
         {
             if (isClear || skillConfig is null)
             {
@@ -528,9 +530,9 @@ namespace MochiFramework.Skill.Editor
 
                 if (this.skillConfig.tracks == null)
                 {
+                    //TODO 修改为更方便的初始化skillConfig方式
+                    AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack();
                     skillConfig.tracks = new List<Track>();
-                    AnimationTrack animationTrack = CreateInstance<AnimationTrack>();
-                    animationTrack.name = "AnimationTrack";
                     skillConfig.tracks.Add(animationTrack);
                     AssetDatabase.AddObjectToAsset(animationTrack,skillConfig);
                     AssetDatabase.SaveAssets();
