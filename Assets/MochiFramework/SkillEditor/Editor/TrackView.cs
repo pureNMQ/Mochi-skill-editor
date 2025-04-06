@@ -84,7 +84,14 @@ namespace MochiFramework.Skill.Editor
             {
                 int selectFramIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
                 Undo.RegisterCompleteObjectUndo(skillEditor.SkillConfig, "Insert Clip");
-                track.InsertClipAtFrame(selectFramIndex, objects[0]);
+                Clip newClip = track.InsertClipAtFrame(selectFramIndex, objects[0]);
+                
+                //保存数据
+                AssetDatabase.AddObjectToAsset(newClip,track);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+                
+                //刷新View
                 Update();
             }
         }

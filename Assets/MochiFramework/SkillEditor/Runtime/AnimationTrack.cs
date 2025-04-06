@@ -8,11 +8,7 @@ namespace MochiFramework.Skill
     public class AnimationTrack : Track
     {
         public override string TrackName => "动画轨道";
-        protected List<AnimationClip> clips;
-        public AnimationTrack()
-        {
-            clips = new List<AnimationClip>();
-        }
+        [SerializeField] protected List<AnimationClip> clips = new List<AnimationClip>();
         
         public override bool CanConvertToClip(object obj)
         {
@@ -50,12 +46,14 @@ namespace MochiFramework.Skill
             return true;
         }
 
-        public override void InsertClipAtFrame(int startFrame, object obj)
+        public override Clip InsertClipAtFrame(int startFrame, object obj)
         {
             if (obj is UnityEngine.AnimationClip animationClip)
             {
-                InsertClipAtFrame(startFrame, animationClip);
+                return InsertClipAtFrame(startFrame, animationClip);
             }
+
+            return null;
         }
 
         public override IEnumerator<Clip> GetEnumerator()
@@ -63,23 +61,20 @@ namespace MochiFramework.Skill
             return clips.GetEnumerator();
         }
 
-        public void InsertClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
+        public Clip InsertClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
         {
             int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
             {
                 //TODO 使用ScriptableObject创建对象，并且使用AssetDatabase.AddObjectToAsset将对象附加到SkillConfig上
-                AnimationClip clip = new AnimationClip(startFrame, animationClip,correctionDuration); 
+                AnimationClip clip = AnimationClip.CreateAnimationClip(startFrame, animationClip,correctionDuration); 
                 Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration}");
                 clips.Add(clip);
                 clips = clips.OrderBy(clip => clip.StartFrame).ToList();
-                foreach (var item in clips)
-                {
-                    Debug.Log(item);
-                }
-                
-                
+                return clip;
             }
+
+            return null;
         }
 
         public override void MoveClipToFrame(Clip clip, int startFrame)

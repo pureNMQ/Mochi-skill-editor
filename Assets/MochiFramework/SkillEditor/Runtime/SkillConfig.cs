@@ -10,6 +10,6 @@ namespace MochiFramework.Skill
     {
         public string SkillName;
         public int FrameCount;
-        public List<Track> tracks = new List<Track>(){new AnimationTrack()};
+        public List<Track> tracks;
     }
 }

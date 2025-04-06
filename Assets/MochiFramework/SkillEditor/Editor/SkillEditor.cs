@@ -47,15 +47,15 @@ namespace MochiFramework.Skill.Editor
             Undo.undoRedoEvent += OnUndoRedo;
 
             //TODO 临时测试.技能配置
-            SkillConfig tempConfig = ScriptableObject.CreateInstance<SkillConfig>();
-            tempConfig.name = "Temp Skill";
-            tempConfig.SkillName = "Temp Skill";
-            tempConfig.FrameCount = 120;
-
-            tempConfig.tracks = new List<Track>();
-            tempConfig.tracks.Add(new AnimationTrack());
-
-            SkillConfigField.value = tempConfig;
+            // SkillConfig tempConfig = ScriptableObject.CreateInstance<SkillConfig>();
+            // tempConfig.name = "Temp Skill";
+            // tempConfig.SkillName = "Temp Skill";
+            // tempConfig.FrameCount = 120;
+            //
+            // tempConfig.tracks = new List<Track>();
+            // tempConfig.tracks.Add(new AnimationTrack());
+            //
+            // SkillConfigField.value = tempConfig;
         }
 
         private void OnUndoRedo(in UndoRedoInfo undo)
@@ -525,6 +525,17 @@ namespace MochiFramework.Skill.Editor
             if (skillConfig != null)
             {
                 TotalFrameField.value = skillConfig.FrameCount;
+
+                if (this.skillConfig.tracks == null)
+                {
+                    skillConfig.tracks = new List<Track>();
+                    AnimationTrack animationTrack = CreateInstance<AnimationTrack>();
+                    animationTrack.name = "AnimationTrack";
+                    skillConfig.tracks.Add(animationTrack);
+                    AssetDatabase.AddObjectToAsset(animationTrack,skillConfig);
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                }
             }
 
             SelectFrame = 0;
