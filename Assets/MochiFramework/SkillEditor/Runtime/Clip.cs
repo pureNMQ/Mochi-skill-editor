@@ -11,6 +11,7 @@ namespace MochiFramework.Skill
     public abstract class Clip : ScriptableObject
     {
         public abstract string ClipName { get; }
+        public abstract int OriginalDuration { get; }
 
         public int StartFrame
         {
@@ -28,6 +29,7 @@ namespace MochiFramework.Skill
             get => duration;
             set => duration = value;
         }
+        
 
         [SerializeField] protected int startFrame;
         [SerializeField] protected int duration;

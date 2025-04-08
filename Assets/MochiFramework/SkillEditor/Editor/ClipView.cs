@@ -76,9 +76,15 @@ namespace MochiFramework.Skill.Editor
             else if(evt.button == 1)
             {
                 GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent("Delete"), false, Delete);
+                menu.AddItem(new GUIContent("重置长度"), false, ResetDuration);
+                menu.AddItem(new GUIContent("删除"), false, Delete);
                 menu.ShowAsContext();
             }
+        }
+
+        private void ResetDuration()
+        {
+            track.ResetClipDuration(clip);
         }
 
         private void OnMouseMove(MouseMoveEvent evt)

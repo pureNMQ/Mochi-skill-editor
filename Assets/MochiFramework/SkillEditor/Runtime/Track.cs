@@ -15,6 +15,7 @@ namespace MochiFramework.Skill
         public abstract Clip InsertClipAtFrame(int startFrame, object obj);
         public abstract Clip RemoveClip(Clip clip);
         public abstract void MoveClipToFrame(Clip clip, int startFrame);
+        public abstract void ResetClipDuration(Clip clip);
         public abstract IEnumerator<Clip> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()

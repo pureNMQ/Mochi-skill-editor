@@ -89,8 +89,8 @@ namespace MochiFramework.Skill.Editor
 
             if (track.CanConvertToClip(objects[0]))
             {
-                //BUG 只能撤回，不能重做，可能是重做的过程中新建了一个Clip对象，而Track引用的还是旧的Clip对象，导致引用错误
-                
+                //BUG 只能撤回，不能重做
+                //可能是重做的过程中新建了一个Clip对象，而Track引用的还是旧的Clip对象，导致引用错误
                 Undo.RegisterCompleteObjectUndo(track,"Insert Clip");
                 int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
                 Clip newClip = track.InsertClipAtFrame(selectFrameIndex, objects[0]);

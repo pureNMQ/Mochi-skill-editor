@@ -56,6 +56,21 @@ namespace MochiFramework.Skill
             return null;
         }
 
+        public override void ResetClipDuration(Clip clip)
+        {
+            //TODO 重置Clip的长度为原始长度 如果可以的话
+            if (clips.Contains(clip))
+            {
+                if (CanInsertClipAtFrame(clip.StartFrame, clip.OriginalDuration, out int correctionDuration, clip))
+                {
+                    if (clip.OriginalDuration == correctionDuration)
+                    {
+                        clip.Duration = clip.OriginalDuration;
+                    }
+                }
+            }
+        }
+
         public override IEnumerator<Clip> GetEnumerator()
         {
             return clips.GetEnumerator();
@@ -73,7 +88,6 @@ namespace MochiFramework.Skill
             int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
             {
-                //TODO 使用ScriptableObject创建对象，并且使用AssetDatabase.AddObjectToAsset将对象附加到SkillConfig上
                 AnimationClip clip = AnimationClip.CreateAnimationClip(startFrame, animationClip,correctionDuration); 
                 Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration}");
                 clips.Add(clip);
