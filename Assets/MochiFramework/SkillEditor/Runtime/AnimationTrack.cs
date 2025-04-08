@@ -10,6 +10,15 @@ namespace MochiFramework.Skill
         public override string TrackName => "动画轨道";
         [SerializeField] protected List<AnimationClip> clips = new List<AnimationClip>();
         
+        
+        public static AnimationTrack CreateAnimationTrack(SkillConfig skillConfig)
+        {
+            AnimationTrack animationTrack = CreateInstance<AnimationTrack>();
+            animationTrack.name = "AnimationTrack";
+            animationTrack.skillConfig = skillConfig;
+            return animationTrack;
+        }
+        
         public override bool CanConvertToClip(object obj)
         {
             return obj is UnityEngine.AnimationClip;
@@ -39,8 +48,16 @@ namespace MochiFramework.Skill
                         correctionDuration = offset;
                     }
                 }
-                
-                //情况三:插入Clip的结束点位于Track长度之外
+            }
+            
+            //情况三:插入Clip的结束点位于Track长度之外
+            if (startFrame + duration > skillConfig.FrameCount)
+            {
+                int offset = skillConfig.FrameCount - startFrame;
+                if (offset < correctionDuration)
+                {
+                    correctionDuration = offset;
+                }
             }
             
             return true;
@@ -74,13 +91,6 @@ namespace MochiFramework.Skill
         public override IEnumerator<Clip> GetEnumerator()
         {
             return clips.GetEnumerator();
-        }
-
-        public static AnimationTrack CreateAnimationTrack()
-        {
-            AnimationTrack animationTrack = CreateInstance<AnimationTrack>();
-            animationTrack.name = "AnimationTrack";
-            return animationTrack;
         }
 
         public Clip InsertClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)

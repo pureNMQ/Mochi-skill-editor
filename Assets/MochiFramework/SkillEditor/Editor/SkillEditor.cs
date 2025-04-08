@@ -531,7 +531,7 @@ namespace MochiFramework.Skill.Editor
                 if (this.skillConfig.tracks == null)
                 {
                     //TODO 修改为更方便的初始化skillConfig方式
-                    AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack();
+                    AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack(skillConfig);
                     skillConfig.tracks = new List<Track>();
                     skillConfig.tracks.Add(animationTrack);
                     AssetDatabase.AddObjectToAsset(animationTrack,skillConfig);

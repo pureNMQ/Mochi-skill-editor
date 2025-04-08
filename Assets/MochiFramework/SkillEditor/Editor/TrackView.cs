@@ -63,6 +63,7 @@ namespace MochiFramework.Skill.Editor
             clipViews.Clear();
             trackClipView.Clear();
             
+            trackClipView.style.width = skillEditor.SkillConfig.FrameCount * frameUnitWidth;
             //生成新的ClipView
             foreach (var clip in track)
             {

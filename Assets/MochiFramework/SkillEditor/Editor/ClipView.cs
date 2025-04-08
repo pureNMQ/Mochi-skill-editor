@@ -26,6 +26,8 @@ namespace MochiFramework.Skill.Editor
         private bool isDrag = false;
         private Vector2 dragStartPos;
         private Vector2 dragOffestPos;
+        //拖拽时最后一个有效帧
+        private int lastValidFrame = -1;
         
         public void Init(SkillEditor skillEditor,VisualElement parent,Track track,Clip clip,float frameUnitWidth)
         {
@@ -97,6 +99,16 @@ namespace MochiFramework.Skill.Editor
                 {
                     frame = 0;
                 }
+                //TODO 添加新的判断方式，不会修改长度，只会调整位置
+                //判断是否可以移动到该为止
+                if (track.CanInsertClipAtFrame(frame, clip.Duration, out int correctionDuration, clip))
+                {
+                    if (clip.Duration == correctionDuration)
+                    {
+                        lastValidFrame = frame;
+                    }
+                }
+                
                 SetPosition(frame);
                 //NOTE 该元素将在视觉上位于任何重叠的同级元素前面
                 root.BringToFront();
@@ -154,16 +166,9 @@ namespace MochiFramework.Skill.Editor
 
         private void ApplyDrag()
         {
-            //TODO 重新设置Clip的位置，并且提供撤回功能
             Debug.Log("Apply Drag");
-            int frame = skillEditor.GetFrameIndexByMousePos(dragStartPos);
-            if (frame < 0)
-            {
-                frame = 0;
-            }
-            
             Undo.RegisterCompleteObjectUndo(clip,"Move Clip");
-            track.MoveClipToFrame(clip,frame);
+            track.MoveClipToFrame(clip,lastValidFrame);
             
             //重新设置View的位置
             SetPosition(clip.StartFrame);

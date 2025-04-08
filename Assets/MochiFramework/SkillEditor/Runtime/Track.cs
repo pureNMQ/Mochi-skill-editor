@@ -10,6 +10,9 @@ namespace MochiFramework.Skill
     public abstract class Track : ScriptableObject, IEnumerable<Clip>
     {
         public abstract string TrackName { get; }
+        
+        [SerializeField,HideInInspector] protected SkillConfig skillConfig;
+        
         public abstract bool CanConvertToClip(object obj);
         public abstract bool CanInsertClipAtFrame(int startFrame,int duration,out int correctionDuration,Clip ignoreClip = null);
         public abstract Clip InsertClipAtFrame(int startFrame, object obj);
