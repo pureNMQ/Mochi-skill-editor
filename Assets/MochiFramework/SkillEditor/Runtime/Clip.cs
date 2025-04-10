@@ -12,7 +12,10 @@ namespace MochiFramework.Skill
     {
         public abstract string ClipName { get; }
         public abstract int OriginalDuration { get; }
-
+        
+        
+        public Track Track => track;
+        public SkillConfig SkillConfig => track.SkillConfig;
         public int StartFrame
         {
             get => startFrame;
@@ -30,10 +33,10 @@ namespace MochiFramework.Skill
             set => duration = value;
         }
         
-
+        [SerializeField,HideInInspector] protected Track track;
         [SerializeField] protected int startFrame;
         [SerializeField] protected int duration;
-
+        
 
     }
 }

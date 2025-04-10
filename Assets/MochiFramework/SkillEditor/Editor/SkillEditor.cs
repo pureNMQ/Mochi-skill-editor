@@ -39,23 +39,13 @@ namespace MochiFramework.Skill.Editor
             root.styleSheets.Add(styleSheet);
             
             skillEditorConfig = new SkillEditorConfig();
+            
             InitTopMenu();
             InitTimeShaft();
             InitTrackView();
             InitController();
 
             Undo.undoRedoEvent += OnUndoRedo;
-
-            //TODO 临时测试.技能配置
-            // SkillConfig tempConfig = ScriptableObject.CreateInstance<SkillConfig>();
-            // tempConfig.name = "Temp Skill";
-            // tempConfig.SkillName = "Temp Skill";
-            // tempConfig.FrameCount = 120;
-            //
-            // tempConfig.tracks = new List<Track>();
-            // tempConfig.tracks.Add(new AnimationTrack());
-            //
-            // SkillConfigField.value = tempConfig;
         }
 
         private void OnUndoRedo(in UndoRedoInfo undo)
@@ -71,6 +61,8 @@ namespace MochiFramework.Skill.Editor
                     break;
             }
         }
+        
+        
 
         #region TopMenu
 
@@ -526,8 +518,6 @@ namespace MochiFramework.Skill.Editor
 
             if (skillConfig != null)
             {
-                TotalFrameField.value = skillConfig.FrameCount;
-
                 if (this.skillConfig.tracks == null)
                 {
                     //TODO 修改为更方便的初始化skillConfig方式
@@ -543,11 +533,8 @@ namespace MochiFramework.Skill.Editor
             SelectFrame = 0;
             TrackContainerView.horizontalScroller.value = 0;
             TrackContainerView.verticalScroller.value = 0;
-
-            TimeShaft.MarkDirtyLayout();
-            SelectLine.MarkDirtyLayout();
-
-            UpdateTrack(true);
+            
+            RedrawEditor();
         }
 
         #endregion
@@ -591,6 +578,24 @@ namespace MochiFramework.Skill.Editor
             }
 
             return index;
+        }
+
+
+        public void RedrawEditor()
+        {
+            if (skillConfig != null)
+            {
+                if (SkillConfigField.value != skillConfig)
+                {
+                    SkillConfigField.SetValueWithoutNotify(skillConfig);
+                }
+                
+                TotalFrameField.value = skillConfig.FrameCount;
+            }
+
+            TimeShaft.MarkDirtyRepaint();
+            SelectLine.MarkDirtyRepaint();
+            UpdateTrack();
         }
         #endregion
     }

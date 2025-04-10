@@ -98,8 +98,8 @@ namespace MochiFramework.Skill
             int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
             {
-                AnimationClip clip = AnimationClip.CreateAnimationClip(startFrame, animationClip,correctionDuration); 
-                Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration}");
+                AnimationClip clip = AnimationClip.CreateAnimationClip(this,startFrame, animationClip,correctionDuration); 
+                Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
                 clips.Add(clip);
                 clips = clips.OrderBy(clip => clip.StartFrame).ToList();
                 return clip;
