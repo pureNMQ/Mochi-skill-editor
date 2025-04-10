@@ -20,7 +20,7 @@
                     <ui:VisualElement name="VisualElement" style="background-image: url(&quot;project://database/Assets/MochiFramework/SkillEditor/Editor/Icon/PreviousFrame.png?fileID=2800000&amp;guid=3904f75a1cbe7e84cbf780f3b5178e77&amp;type=3#PreviousFrame&quot;); flex-grow: 1;" />
                 </ui:Button>
                 <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" name="PlayOrStopButton" style="background-image: none; border-top-width: 0.5px; border-right-width: 1px; border-bottom-width: 0; border-left-width: 0.5px; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px; flex-basis: 32px; -unity-background-image-tint-color: rgb(255, 255, 255); border-left-color: rgb(32, 32, 32); border-right-color: rgb(32, 32, 32); border-top-color: rgb(32, 32, 32); border-bottom-color: rgb(32, 32, 32);">
-                    <ui:VisualElement name="VisualElement" style="background-image: url(&quot;project://database/Assets/MochiFramework/SkillEditor/Editor/Icon/Play.png?fileID=2800000&amp;guid=350cc7ad2e651ec4386516c31cc367d6&amp;type=3#Play&quot;); flex-grow: 1;" />
+                    <ui:VisualElement name="PlayOrStopIcon" style="flex-grow: 1;" />
                 </ui:Button>
                 <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" name="NextFrameButton" style="background-image: none; border-top-width: 0.5px; border-right-width: 1px; border-bottom-width: 0; border-left-width: 0.5px; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px; flex-basis: 32px; -unity-background-image-tint-color: rgb(255, 255, 255); border-left-color: rgb(32, 32, 32); border-right-color: rgb(32, 32, 32); border-top-color: rgb(32, 32, 32); border-bottom-color: rgb(32, 32, 32);">
                     <ui:VisualElement name="VisualElement" style="background-image: url(&quot;project://database/Assets/MochiFramework/SkillEditor/Editor/Icon/NextFrame.png?fileID=2800000&amp;guid=f523549293ee2604ca3eaef626d9bee6&amp;type=3#NextFrame&quot;); flex-grow: 1;" />
@@ -29,9 +29,9 @@
                     <ui:VisualElement name="VisualElement" style="background-image: url(&quot;project://database/Assets/MochiFramework/SkillEditor/Editor/Icon/EndFrame.png?fileID=2800000&amp;guid=4a8f6b2d0ad79a147bcf547d5bbf75cb&amp;type=3#EndFrame&quot;); flex-grow: 1;" />
                 </ui:Button>
                 <ui:VisualElement name="SelectionFrameAndTotalFrame" style="flex-grow: 1; flex-direction: row-reverse; padding-top: 0; padding-right: 2px; padding-bottom: 0; padding-left: 2px;">
-                    <uie:IntegerField value="42" name="TotalFrameField" />
+                    <uie:IntegerField value="0" name="TotalFrameField" />
                     <ui:Label text="/" display-tooltip-when-elided="true" style="font-size: 21px; -unity-font-style: normal; -unity-text-align: middle-left;" />
-                    <uie:IntegerField value="42" name="SelectionFrameField" />
+                    <uie:IntegerField value="0" name="SelectionFrameField" is-delayed="false" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="TrackMenuContainer" style="flex-grow: 1; flex-direction: column;" />

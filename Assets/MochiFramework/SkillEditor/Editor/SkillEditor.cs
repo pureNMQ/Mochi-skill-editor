@@ -46,6 +46,7 @@ namespace MochiFramework.Skill.Editor
             InitController();
 
             Undo.undoRedoEvent += OnUndoRedo;
+            skillConfig = null;
         }
 
         private void OnUndoRedo(in UndoRedoInfo undo)
@@ -62,8 +63,6 @@ namespace MochiFramework.Skill.Editor
             }
         }
         
-        
-
         #region TopMenu
 
         private const string previewScenePath = "Assets/MochiFramework/SkillEditor/Editor/Scenes/SkillEditorScene.unity";
@@ -173,6 +172,7 @@ namespace MochiFramework.Skill.Editor
         {
             skillEditorConfig.selectLineDragging = true;
             SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
+            PreviewStop();
         }
 
         private void OnMouseUpTimeShaft(MouseUpEvent evt)
@@ -184,7 +184,6 @@ namespace MochiFramework.Skill.Editor
             if (skillEditorConfig.selectLineDragging)
             {
                 SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
-
             }
         }
 
@@ -367,16 +366,18 @@ namespace MochiFramework.Skill.Editor
 
         #endregion
 
-        #region Controller
+        #region Console
 
         private Button StartFrameButton;
         private Button PreviousFrameButton;
         private Button PlayOrStopButton;
         private Button NextFrameButton;
         private Button EndFrameButton;
-
+        
         private IntegerField SelectionFrameField;
         private IntegerField TotalFrameField;
+        
+        private VisualElement PlayOrStopIcon;
 
         private void InitController()
         {
@@ -388,6 +389,8 @@ namespace MochiFramework.Skill.Editor
 
             SelectionFrameField = root.Q<IntegerField>(nameof(SelectionFrameField));
             TotalFrameField = root.Q<IntegerField>(nameof(TotalFrameField));
+            
+            PlayOrStopIcon = PlayOrStopButton.Q<VisualElement>(nameof(PlayOrStopIcon));
 
             StartFrameButton.clicked += OnClickedStartFrame;
             PreviousFrameButton.clicked += OnClickedPreviousFrame;
@@ -447,7 +450,14 @@ namespace MochiFramework.Skill.Editor
 
         private void OnClickedPlayOrStop()
         {
-            //TODO 播放或停止
+            if (isPlay && !isPause)
+            {
+                PreviewPause();
+            }
+            else
+            {
+                PreviewPlay();    
+            }
         }
 
 
@@ -563,6 +573,71 @@ namespace MochiFramework.Skill.Editor
 
         }
 
+        private double lastTime = 0;
+        private double detleTime = 0;
+
+        private double playPreviewTime = 0;
+        private bool isPlay = false;
+        private bool isPause;
+
+        private void PreviewPlay()
+        {
+            if(skillConfig is null) return;
+            
+            if (isPause && isPlay)
+            {
+                isPause = false;
+            }
+            else
+            {
+                playPreviewTime = SelectFrame * skillConfig.frameTime;
+                isPlay = true;
+                isPause = false;
+            }
+            
+            PlayOrStopIcon.AddToClassList("playing");
+        }
+
+        private void PreviewPause()
+        {
+            if (isPlay)
+            {
+                isPause = true;
+                PlayOrStopIcon.RemoveFromClassList("playing");
+            }
+        }
+
+        private void PreviewStop()
+        {
+            isPause = false;
+            isPlay = false;
+            PlayOrStopIcon.RemoveFromClassList("playing");
+        }
+        
+        private void Update()
+        {
+            detleTime = EditorApplication.timeSinceStartup - lastTime;
+            lastTime = EditorApplication.timeSinceStartup;
+
+            if (isPlay && !isPause)
+            {
+                if (skillConfig is null)
+                {
+                    PreviewStop();
+                    return;
+                }
+                playPreviewTime += detleTime;
+
+                if (playPreviewTime >= skillConfig.totalTime)
+                {
+                    PreviewStop();
+                }
+                
+                SelectFrame = Convert.ToInt32(playPreviewTime * skillConfig.frameRate);
+                Debug.Log($"播放帧:{SelectFrame}");
+            }
+        }
+
         #endregion
 
         #region Utility
@@ -592,7 +667,7 @@ namespace MochiFramework.Skill.Editor
                 
                 TotalFrameField.value = skillConfig.FrameCount;
             }
-
+            
             TimeShaft.MarkDirtyRepaint();
             SelectLine.MarkDirtyRepaint();
             UpdateTrack();

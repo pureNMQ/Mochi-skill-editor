@@ -13,13 +13,16 @@ namespace MochiFramework.Skill
         public abstract string ClipName { get; }
         public abstract int OriginalDuration { get; }
         
-        
         public Track Track => track;
         public SkillConfig SkillConfig => track.SkillConfig;
+        
+        /// <summary>
+        /// 该属性的起始帧为0，受保护的字段startFrame的起始帧为1
+        /// </summary>
         public int StartFrame
         {
-            get => startFrame;
-            set => startFrame = value;
+            get => startFrame - 1;
+            set => startFrame = value + 1;
         }
 
         public int EndFrame
@@ -34,6 +37,9 @@ namespace MochiFramework.Skill
         }
         
         [SerializeField,HideInInspector] protected Track track;
+        /// <summary>
+        /// 该字段的起始帧为1，如果想要使用起始帧为0的模式请使用StartFrame属性
+        /// </summary>
         [SerializeField] protected int startFrame;
         [SerializeField] protected int duration;
         

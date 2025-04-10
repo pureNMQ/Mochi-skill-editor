@@ -24,7 +24,7 @@ namespace MochiFramework.Skill
         {
             AnimationClip clip = ScriptableObject.CreateInstance<AnimationClip>();
             clip.track = track;
-            clip.startFrame = startFrame;
+            clip.StartFrame = startFrame;
             clip.animationAsset = unityAnimationClip;
             clip.duration = duration;
             clip.name = $"{nameof(AnimationClip)}({clip.ClipName})";
@@ -33,7 +33,7 @@ namespace MochiFramework.Skill
         
         public override string ToString()
         {
-            return $"动画名{ClipName},动画起始帧{startFrame},动画长度{duration}";
+            return $"动画名{ClipName},动画起始帧{StartFrame},动画长度{duration}";
         }
     }
 }
