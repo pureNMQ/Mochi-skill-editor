@@ -47,6 +47,7 @@ namespace MochiFramework.Skill.Editor
 
             Undo.undoRedoEvent += OnUndoRedo;
             skillConfig = null;
+            ShowPreviewCharacter();
         }
 
         private void OnUndoRedo(in UndoRedoInfo undo)
@@ -118,14 +119,14 @@ namespace MochiFramework.Skill.Editor
 
         private void OnClickSkillInfoButton()
         {
-
+            if(skillConfig is null) return;
+            
+            Selection.activeObject = skillConfig;
         }
 
         private void OnPreviewPrefabValueChanged(ChangeEvent<UnityEngine.Object> evt)
         {
             previewPrefab = evt.newValue as GameObject;
-
-            if (!IsPreview) return;
 
             ShowPreviewCharacter();
         }
@@ -172,7 +173,10 @@ namespace MochiFramework.Skill.Editor
         {
             skillEditorConfig.selectLineDragging = true;
             SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
+            
+            //预览相关
             PreviewStop();
+            Debug.Log("预览暂停");
         }
 
         private void OnMouseUpTimeShaft(MouseUpEvent evt)
@@ -492,6 +496,11 @@ namespace MochiFramework.Skill.Editor
                 skillEditorConfig.selectFrame = value;
                 SelectionFrameField.value = value + 1;
                 SelectLine.MarkDirtyLayout();
+                
+                if (IsPreview && !isPlay && _skillPreviewPlayer != null)
+                {
+                    _skillPreviewPlayer.PreviewUpdate(SelectFrame * skillConfig.frameTime,SelectFrame,false);
+                }
             }
 
         }
@@ -543,42 +552,40 @@ namespace MochiFramework.Skill.Editor
             SelectFrame = 0;
             TrackContainerView.horizontalScroller.value = 0;
             TrackContainerView.verticalScroller.value = 0;
-            
+
+            if (_skillPreviewPlayer != null)
+            {
+                _skillPreviewPlayer.SetSkillConfig(skillConfig);
+            }
+
             RedrawEditor();
         }
 
         #endregion
 
         #region Preview
-        private void ShowPreviewCharacter()
-        {
-            GameObject previewCharacterRoot = GameObject.Find(previewCharacterRootPath);
-
-            if (previewCharacterRoot != null)
-            {
-                while (previewCharacterRoot.transform.childCount > 0)
-                {
-                    DestroyImmediate(previewCharacterRoot.transform.GetChild(0).gameObject);
-                }
-            }
-            else
-            {
-                previewCharacterRoot = new GameObject(previewCharacterRootPath);
-            }
-
-            if (previewPrefab != null)
-            {
-                Instantiate(previewPrefab, previewCharacterRoot.transform);
-            }
-
-        }
-
         private double lastTime = 0;
         private double detleTime = 0;
 
-        private double playPreviewTime = 0;
+        private double previewPlayTime = 0;
         private bool isPlay = false;
         private bool isPause;
+        
+        private SkillPreviewPlayer _skillPreviewPlayer;
+        private void ShowPreviewCharacter()
+        {
+            if (!IsPreview) return;
+            
+            //GameObject previewCharacterRoot = GameObject.Find(previewCharacterRootPath);
+            _skillPreviewPlayer = FindObjectOfType<SkillPreviewPlayer>();
+            if (_skillPreviewPlayer is null)
+            {
+                _skillPreviewPlayer = new GameObject("PreviewObject").AddComponent<SkillPreviewPlayer>();
+            }
+            
+           _skillPreviewPlayer.ShowPreviewCharacter(previewPrefab);
+
+        }
 
         private void PreviewPlay()
         {
@@ -590,7 +597,7 @@ namespace MochiFramework.Skill.Editor
             }
             else
             {
-                playPreviewTime = SelectFrame * skillConfig.frameTime;
+                previewPlayTime = SelectFrame * skillConfig.frameTime;
                 isPlay = true;
                 isPause = false;
             }
@@ -609,6 +616,10 @@ namespace MochiFramework.Skill.Editor
 
         private void PreviewStop()
         {
+            if (isPlay)
+            {
+                _skillPreviewPlayer.PreviewStop();
+            }
             isPause = false;
             isPlay = false;
             PlayOrStopIcon.RemoveFromClassList("playing");
@@ -616,6 +627,11 @@ namespace MochiFramework.Skill.Editor
         
         private void Update()
         {
+            if (!IsPreview)
+            {
+                PreviewStop();
+            }
+            
             detleTime = EditorApplication.timeSinceStartup - lastTime;
             lastTime = EditorApplication.timeSinceStartup;
 
@@ -626,15 +642,16 @@ namespace MochiFramework.Skill.Editor
                     PreviewStop();
                     return;
                 }
-                playPreviewTime += detleTime;
+                previewPlayTime += detleTime;
 
-                if (playPreviewTime >= skillConfig.totalTime)
+                if (previewPlayTime >= skillConfig.totalTime)
                 {
                     PreviewStop();
                 }
                 
-                SelectFrame = Convert.ToInt32(playPreviewTime * skillConfig.frameRate);
+                SelectFrame = Convert.ToInt32(previewPlayTime * skillConfig.frameRate);
                 Debug.Log($"播放帧:{SelectFrame}");
+                _skillPreviewPlayer.PreviewUpdate((float)previewPlayTime,SelectFrame);
             }
         }
 

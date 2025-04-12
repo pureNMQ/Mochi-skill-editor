@@ -8,6 +8,7 @@ namespace MochiFramework.Skill
     public class AnimationTrack : Track
     {
         public override string TrackName => "动画轨道";
+        public override int ClipCount => clips.Count;
         [SerializeField] protected List<AnimationClip> clips = new List<AnimationClip>();
         
         
@@ -17,6 +18,11 @@ namespace MochiFramework.Skill
             animationTrack.name = "AnimationTrack";
             animationTrack.skillConfig = skillConfig;
             return animationTrack;
+        }
+
+        public override Clip GetClipAt(int index)
+        {
+            return clips[index];
         }
         
         public override bool CanConvertToClip(object obj)
@@ -131,6 +137,29 @@ namespace MochiFramework.Skill
             }
             
             return clip;    
+        }
+
+        public override void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject,bool isPlaying)
+        {
+            if(clips is null) return;
+             
+            AnimationClip currentClip = clips.FirstOrDefault(clip => clip.StartFrame <= currentFrame && clip.EndFrame > currentFrame);
+            if (currentClip != default && currentClip.AnimationAsset is not null)
+            {
+                float time = currentTime - currentClip.StartFrame * skillConfig.frameTime;
+                if (currentClip.AnimationAsset.isLooping)
+                {
+                    time %= currentClip.AnimationAsset.length;
+                }
+                currentClip.AnimationAsset.SampleAnimation(previewObject, time);
+                Debug.Log($"预览播放动画时间:{currentTime - currentClip.StartFrame * skillConfig.frameTime}");
+            }
+        }
+
+        public override void PreviewStop(GameObject previewObject)
+        {
+            //Animator animator = previewObject.GetComponent<Animator>();
+            
         }
     }
 }

@@ -12,6 +12,8 @@ namespace MochiFramework.Skill
         public SkillConfig SkillConfig => skillConfig;
         [SerializeField,HideInInspector] protected SkillConfig skillConfig;
         public abstract string TrackName { get; }
+        public abstract int ClipCount { get; }
+        public abstract Clip GetClipAt(int index);
         
         public abstract bool CanConvertToClip(object obj);
         public abstract bool CanInsertClipAtFrame(int startFrame,int duration,out int correctionDuration,Clip ignoreClip = null);
@@ -19,6 +21,10 @@ namespace MochiFramework.Skill
         public abstract Clip RemoveClip(Clip clip);
         public abstract void MoveClipToFrame(Clip clip, int startFrame);
         public abstract void ResetClipDuration(Clip clip);
+
+        public abstract void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject,bool isPlaying);
+        public abstract void PreviewStop(GameObject previewObject);
+        
         public abstract IEnumerator<Clip> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()

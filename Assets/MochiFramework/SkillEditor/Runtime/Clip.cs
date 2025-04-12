@@ -27,7 +27,7 @@ namespace MochiFramework.Skill
 
         public int EndFrame
         {
-            get => startFrame + duration;
+            get => startFrame + duration - 1;
         }
 
         public int Duration
