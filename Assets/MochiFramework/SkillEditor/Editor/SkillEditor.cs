@@ -584,7 +584,7 @@ namespace MochiFramework.Skill.Editor
             }
             
            _skillPreviewPlayer.ShowPreviewCharacter(previewPrefab);
-
+           _skillPreviewPlayer.SetSkillConfig(skillConfig);
         }
 
         private void PreviewPlay()

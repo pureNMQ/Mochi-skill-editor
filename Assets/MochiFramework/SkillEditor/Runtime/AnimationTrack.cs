@@ -152,13 +152,12 @@ namespace MochiFramework.Skill
                     time %= currentClip.AnimationAsset.length;
                 }
                 currentClip.AnimationAsset.SampleAnimation(previewObject, time);
-                Debug.Log($"预览播放动画时间:{currentTime - currentClip.StartFrame * skillConfig.frameTime}");
+                Debug.Log($"预览播放动画时间:{time}");
             }
         }
 
         public override void PreviewStop(GameObject previewObject)
         {
-            //Animator animator = previewObject.GetComponent<Animator>();
             
         }
     }

@@ -31,13 +31,19 @@ namespace MochiFramework.Skill
         public void PreviewUpdate(float currentTime,int currentFrame,bool isPlaying = true)
         {
             if(_skillConfig is null) return;
-            _skillConfig.PreviewUpdate(currentTime,currentFrame,previewObject,isPlaying);
+            foreach (var track in _skillConfig.tracks)
+            {
+                track.PreviewUpdate(currentTime,currentFrame,previewObject,isPlaying);
+            }
         }
 
         public void PreviewStop()
         {
             if(_skillConfig is null) return;
-            _skillConfig.PreviewStop(previewObject);
+            foreach (var track in _skillConfig.tracks)
+            {
+                track.PreviewStop(previewObject);
+            }
         }
         
     }

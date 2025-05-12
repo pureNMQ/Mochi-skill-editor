@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine.Serialization;
 namespace MochiFramework.Skill
 {
     // [SkillEditorClip("#436036")]
+    [Serializable]
     public class AnimationClip : Clip
     {
         public override string ClipName => animationAsset ? animationAsset.name : "NoAnimationClip";
@@ -22,12 +24,12 @@ namespace MochiFramework.Skill
 
         public static AnimationClip CreateAnimationClip(Track track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
         {
-            AnimationClip clip = ScriptableObject.CreateInstance<AnimationClip>();
+            AnimationClip clip = new AnimationClip(); //ScriptableObject.CreateInstance<AnimationClip>();
             clip.track = track;
             clip.StartFrame = startFrame;
             clip.animationAsset = unityAnimationClip;
             clip.duration = duration;
-            clip.name = $"{nameof(AnimationClip)}({clip.ClipName})";
+            //clip.name = $"{nameof(AnimationClip)}({clip.ClipName})";
             return clip;
         }
         

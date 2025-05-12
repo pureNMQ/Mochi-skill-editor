@@ -17,7 +17,7 @@ namespace MochiFramework.Skill.Editor
 
         public override VisualElement CreateInspectorGUI()
         {
-            _animationClip = serializedObject.targetObject as AnimationClip;
+            //_animationClip = serializedObject.targetObject as AnimationClip;
             return base.CreateInspectorGUI();
         }
 
@@ -33,7 +33,7 @@ namespace MochiFramework.Skill.Editor
             {
                 if (arg.newValue != arg.previousValue)
                 {
-                    _animationClip.name = $"{nameof(AnimationClip)}({_animationClip.ClipName})";
+                    //_animationClip.name = $"{nameof(AnimationClip)}({_animationClip.ClipName})";
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                     UpdateSkillEditor();

@@ -63,7 +63,7 @@ namespace MochiFramework.Skill.Editor
 
         private void OnFocus(FocusEvent evt)
         {
-            Selection.activeObject = clip;
+            //Selection.activeObject = clip;
         }
 
 
@@ -167,7 +167,7 @@ namespace MochiFramework.Skill.Editor
         private void ApplyDrag()
         {
             Debug.Log("Apply Drag");
-            Undo.RegisterCompleteObjectUndo(clip,"Move Clip");
+            //Undo.RegisterCompleteObjectUndo(clip,"Move Clip");
             track.MoveClipToFrame(clip,lastValidFrame);
             
             //重新设置View的位置
@@ -176,10 +176,11 @@ namespace MochiFramework.Skill.Editor
         
         private void Delete()
         {
-            Undo.RegisterCompleteObjectUndo(new Object[]{track,clip},"Delete Clip");
+            //Undo.RegisterCompleteObjectUndo(new Object[]{track,clip},"Delete Clip");
+            Undo.RegisterCompleteObjectUndo(track, "Delete Clip");
             
             track.RemoveClip(clip);
-            Object.DestroyImmediate(clip,true);
+            //Object.DestroyImmediate(clip,true);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             skillEditor.UpdateTrack();
