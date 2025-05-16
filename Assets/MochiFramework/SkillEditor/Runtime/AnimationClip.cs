@@ -12,9 +12,14 @@ namespace MochiFramework.Skill
     {
         public override string ClipName => animationAsset ? animationAsset.name : "NoAnimationClip";
         public override int OriginalDuration => Mathf.CeilToInt(animationAsset.length * animationAsset.frameRate);
-        public UnityEngine.AnimationClip AnimationAsset => animationAsset;
 
-        [FormerlySerializedAs("clip")] [SerializeField] protected UnityEngine.AnimationClip animationAsset;
+        public UnityEngine.AnimationClip AnimationAsset
+        {
+            get => animationAsset;
+            set => animationAsset = value;
+        }
+
+        [SerializeField] protected UnityEngine.AnimationClip animationAsset;
         public static AnimationClip CreateAnimationClip(Track track,int startFrame, UnityEngine.AnimationClip unityAnimationClip)
         {
             //TODO 按照SkillConfig中的帧率来计算

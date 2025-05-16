@@ -8,7 +8,7 @@ namespace MochiFramework.Skill
 {
     //TODO 应该继承ScriptableObject,以便持久化存储
     [Serializable]
-    public abstract class Clip : ScriptableObject
+    public abstract class Clip
     {
         public abstract string ClipName { get; }
         public abstract int OriginalDuration { get; }

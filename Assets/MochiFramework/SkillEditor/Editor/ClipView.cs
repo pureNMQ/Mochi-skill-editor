@@ -60,10 +60,10 @@ namespace MochiFramework.Skill.Editor
             root.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             root.RegisterCallback<FocusEvent>(OnFocus);
         }
-
+        
         private void OnFocus(FocusEvent evt)
         {
-            //Selection.activeObject = clip;
+            skillEditor.ShowObjectOnInspector(clip);
         }
 
 
@@ -172,15 +172,13 @@ namespace MochiFramework.Skill.Editor
             
             //重新设置View的位置
             SetPosition(clip.StartFrame);
+            skillEditor.UpdateInspector();
         }
         
         private void Delete()
         {
-            //Undo.RegisterCompleteObjectUndo(new Object[]{track,clip},"Delete Clip");
-            Undo.RegisterCompleteObjectUndo(track, "Delete Clip");
-            
             track.RemoveClip(clip);
-            //Object.DestroyImmediate(clip,true);
+            
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             skillEditor.UpdateTrack();

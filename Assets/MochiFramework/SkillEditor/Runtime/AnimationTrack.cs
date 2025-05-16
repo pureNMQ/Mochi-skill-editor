@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,11 @@ namespace MochiFramework.Skill
     {
         public override string TrackName => "动画轨道";
         public override int ClipCount => clips.Count;
-        [SerializeField] protected List<AnimationClip> clips = new List<AnimationClip>();
-        
+        [SerializeField,SerializeReference] protected List<AnimationClip> clips = new List<AnimationClip>();
         
         public static AnimationTrack CreateAnimationTrack(SkillConfig skillConfig)
         {
-            AnimationTrack animationTrack = CreateInstance<AnimationTrack>();
-            animationTrack.name = "AnimationTrack";
+            AnimationTrack animationTrack = new AnimationTrack();
             animationTrack.skillConfig = skillConfig;
             return animationTrack;
         }

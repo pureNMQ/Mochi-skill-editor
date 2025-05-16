@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace MochiFramework.Skill.Editor
 {
-    [CustomEditor(typeof(AnimationClip))]
+    [CustomPropertyDrawer(typeof(AnimationClip))]
     public class AnimationClipInspector : ClipInspector
     {
         private ObjectField animationAssetField;
@@ -15,10 +15,17 @@ namespace MochiFramework.Skill.Editor
         
         private AnimationClip _animationClip;
 
-        public override VisualElement CreateInspectorGUI()
+        // public override VisualElement CreateInspectorGUI()
+        // {
+        //     //_animationClip = serializedObject.targetObject as AnimationClip;
+        //     return base.CreateInspectorGUI();
+        // }
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            //_animationClip = serializedObject.targetObject as AnimationClip;
-            return base.CreateInspectorGUI();
+            //TODO 绑定animationClip
+            _animationClip = property.boxedValue as AnimationClip;
+            return base.CreatePropertyGUI(property);
         }
 
         protected override void DrawInspector()
@@ -28,12 +35,14 @@ namespace MochiFramework.Skill.Editor
             animationAssetField = new ObjectField("动画资源");
             animationAssetField.objectType = typeof(UnityEngine.AnimationClip);
             animationAssetField.allowSceneObjects = false;
-            animationAssetField.BindProperty(serializedObject.FindProperty("animationAsset"));
+            //animationAssetField.BindProperty(serializedObject.FindProperty("animationAsset"));
+            animationAssetField.SetValueWithoutNotify(_animationClip.AnimationAsset);
             animationAssetField.RegisterValueChangedCallback(arg =>
             {
                 if (arg.newValue != arg.previousValue)
                 {
                     //_animationClip.name = $"{nameof(AnimationClip)}({_animationClip.ClipName})";
+                    _animationClip.AnimationAsset = arg.newValue as UnityEngine.AnimationClip;
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                     UpdateSkillEditor();

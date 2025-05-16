@@ -537,13 +537,13 @@ namespace MochiFramework.Skill.Editor
 
             if (skillConfig != null)
             {
-                if (this.skillConfig.tracks == null)
+                if (this.skillConfig.tracks == null ||this.skillConfig.tracks.Count == 0)
                 {
                     //TODO 修改为更方便的初始化skillConfig方式
                     AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack(skillConfig);
                     skillConfig.tracks = new List<Track>();
                     skillConfig.tracks.Add(animationTrack);
-                    AssetDatabase.AddObjectToAsset(animationTrack,skillConfig);
+                    Debug.Log("重新构造动画轨道");
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
@@ -689,6 +689,26 @@ namespace MochiFramework.Skill.Editor
             SelectLine.MarkDirtyRepaint();
             UpdateTrack();
         }
+
+        private AgencyInspectorObject _agencyInspectorObject;
+        public void ShowObjectOnInspector(object target)
+        {
+            _agencyInspectorObject = CreateInstance<AgencyInspectorObject>();
+            _agencyInspectorObject.target = target;
+            Selection.activeObject = _agencyInspectorObject;
+        }
+
+        public void UpdateInspector()
+        {
+            //TODO SetDirty()没有效果,目前是重新创建一个_agencyInspectorObject
+            
+            //EditorUtility.SetDirty(_agencyInspectorObject);
+            if (_agencyInspectorObject != null)
+            {
+                ShowObjectOnInspector(_agencyInspectorObject.target);
+            }
+        }
+        
         #endregion
     }
 
