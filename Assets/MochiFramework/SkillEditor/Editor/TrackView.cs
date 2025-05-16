@@ -54,8 +54,8 @@ namespace MochiFramework.Skill.Editor
 
         private void OnFocus(FocusEvent evt)
         {
-            //Selection.activeObject = track;
-            //TODO 重构Inspector逻辑
+            skillEditor.ShowObjectOnInspector(track);
+            Undo.RegisterFullObjectHierarchyUndo(track.SkillConfig,"Insert Clip");
         }
 
         public void Update()
@@ -88,16 +88,12 @@ namespace MochiFramework.Skill.Editor
         private void OnDragExited(DragExitedEvent evt)
         {
             UnityEngine.Object[] objects = DragAndDrop.objectReferences;
-
             if (track.CanConvertToClip(objects[0]))
             {
-                //BUG 只能撤回，不能重做
-                //可能是重做的过程中新建了一个Clip对象，而Track引用的还是旧的Clip对象，导致引用错误
+                Undo.RegisterCompleteObjectUndo(track.SkillConfig,"Insert Clip");
                 int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
-                Clip newClip = track.InsertClipAtFrame(selectFrameIndex, objects[0]);
-                
-                //使用Undo.RegisterCompleteObjectUndo可以避免无法重做的bug，但是撤回的时候该对象不会被销毁
-                //ndo.RegisterCreatedObjectUndo(newClip,"Insert Clip");
+                track.InsertClipAtFrame(selectFrameIndex, objects[0]);
+                //NOTE 如果不合并当前组就会被立即撤回，原因尚不清楚
                 Undo.IncrementCurrentGroup();
                 
                 AssetDatabase.SaveAssets();

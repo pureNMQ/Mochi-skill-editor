@@ -166,19 +166,19 @@ namespace MochiFramework.Skill.Editor
 
         private void ApplyDrag()
         {
-            Debug.Log("Apply Drag");
-            //Undo.RegisterCompleteObjectUndo(clip,"Move Clip");
+            Undo.RegisterCompleteObjectUndo(clip.SkillConfig,"Move Clip");
             track.MoveClipToFrame(clip,lastValidFrame);
-            
             //重新设置View的位置
             SetPosition(clip.StartFrame);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
             skillEditor.UpdateInspector();
         }
         
         private void Delete()
         {
+            Undo.RegisterCompleteObjectUndo(clip.SkillConfig,"Delete Clip");
             track.RemoveClip(clip);
-            
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             skillEditor.UpdateTrack();

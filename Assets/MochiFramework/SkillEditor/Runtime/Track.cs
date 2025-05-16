@@ -10,7 +10,7 @@ namespace MochiFramework.Skill
     public abstract class Track : IEnumerable<Clip>
     {
         public SkillConfig SkillConfig => skillConfig;
-        [SerializeField,HideInInspector] protected SkillConfig skillConfig;
+        [SerializeReference,HideInInspector] protected SkillConfig skillConfig;
         public abstract string TrackName { get; }
         public abstract int ClipCount { get; }
         public abstract Clip GetClipAt(int index);

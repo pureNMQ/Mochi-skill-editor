@@ -29,12 +29,11 @@ namespace MochiFramework.Skill
 
         public static AnimationClip CreateAnimationClip(Track track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
         {
-            AnimationClip clip = new AnimationClip(); //ScriptableObject.CreateInstance<AnimationClip>();
+            AnimationClip clip = new AnimationClip();
             clip.track = track;
             clip.StartFrame = startFrame;
             clip.animationAsset = unityAnimationClip;
             clip.duration = duration;
-            //clip.name = $"{nameof(AnimationClip)}({clip.ClipName})";
             return clip;
         }
         

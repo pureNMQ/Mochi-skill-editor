@@ -52,6 +52,7 @@ namespace MochiFramework.Skill.Editor
 
         private void OnUndoRedo(in UndoRedoInfo undo)
         {
+            Debug.Log("接受到撤回消息:" + undo.undoName);
             switch (undo.undoName)
             {
                 case "Move Clip":
