@@ -36,6 +36,8 @@ namespace MochiFramework.Skill
             set => duration = value;
         }
         
+        public float StartTime => startFrame * SkillConfig.frameTime;
+        
         [SerializeReference,HideInInspector] protected Track track;
         /// <summary>
         /// 该字段的起始帧为1，如果想要使用起始帧为0的模式请使用StartFrame属性

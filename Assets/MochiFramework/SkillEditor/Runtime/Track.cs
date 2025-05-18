@@ -15,8 +15,7 @@ namespace MochiFramework.Skill
         public abstract string TrackName { get; }
         public abstract int ClipCount { get; }
         
-        [SerializeField,SerializeReference]
-        public List<Clip> clips = new List<Clip>();
+        [SerializeReference] public List<Clip> clips = new List<Clip>();
         public virtual Clip GetClipAt(int index)
         {
             return clips[index];
