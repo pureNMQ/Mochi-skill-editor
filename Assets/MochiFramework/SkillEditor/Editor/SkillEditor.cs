@@ -19,7 +19,7 @@ namespace MochiFramework.Skill.Editor
         public static void ShowExample()
         {
             SkillEditor wnd = GetWindow<SkillEditor>();
-            wnd.titleContent = new GUIContent("技能编辑器");
+            wnd.titleContent = new GUIContent("技能编辑器EEVEE");
             wnd.titleContent.image = AssetDatabase.LoadAssetAtPath<Texture>(iconPath);
         }
 
