@@ -17,7 +17,9 @@ namespace MochiFramework.Skill
 
         public abstract void Play(int currentFrame = 0, float currentTime = 0);
         public abstract void Update(float deltaTime, int currentFrame, float currentTime);
+        public abstract void Evaluate(int currentFrame, float currentTime);
         public abstract void Stop();
+        
 
         public virtual void Dispose()
         {

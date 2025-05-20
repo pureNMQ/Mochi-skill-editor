@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MochiFramework.Skill
+namespace MochiFramework.Skill.Editor
 {
     public class SkillPlayer : MonoBehaviour,ISkillPlayer
     {
@@ -11,10 +11,12 @@ namespace MochiFramework.Skill
         public float CurrentTime => currentTime;
         public int CurrentFrame { get; }
         public bool IsPlaying => isPlaying;
+        public Animator Animator => animator;
 
         [SerializeField] private SkillConfig currentSkill;
 
         private float currentTime = 0;
+        private int currentFrame = 0;
         private bool isPlaying = false;
         private List<TrackHandler> trackHandlers;
         
@@ -34,7 +36,7 @@ namespace MochiFramework.Skill
             {
                 currentTime = 0;
                 Debug.Log($"开始播放技能:{currentTime}");
-                InitTrackHandler();
+                Rebuild();
 
                 foreach (var handler in trackHandlers)
                 {
@@ -47,8 +49,6 @@ namespace MochiFramework.Skill
                 isPlaying = false;
                 
             }
-            
-            Debug.Log($"初始化结束:{currentTime}");
         }
 
         public void StopCurrentSkill()
@@ -78,7 +78,7 @@ namespace MochiFramework.Skill
             if(!IsPlaying) return;
             
             currentTime += Time.deltaTime;
-            int currentFrame = Convert.ToInt32(currentTime * currentSkill.frameRate);
+            currentFrame = Convert.ToInt32(currentTime * currentSkill.frameRate);
             foreach (var handler in trackHandlers)
             {
                 handler.Update(Time.deltaTime,currentFrame,currentTime);
@@ -98,19 +98,16 @@ namespace MochiFramework.Skill
         }
 
 
-        private void InitTrackHandler()
+        public void Rebuild()
         {
             DestroyTrackHandlers();
             trackHandlers = new List<TrackHandler>();
             foreach (var track in currentSkill.tracks)
             {
-                switch (track)
+                TrackHandler handler = TrackHandlerFactory.Create(track,this);
+                if (handler is not null)
                 {
-                    case AnimationTrack animationTrack:
-                        if(animator == null) return;
-                        trackHandlers.Add(new AnimationTrackHandler(animationTrack,animator));
-                        Debug.Log("创建动画轨道处理器");
-                        break;
+                    trackHandlers.Add(handler);
                 }
             }
         }
@@ -125,16 +122,5 @@ namespace MochiFramework.Skill
             trackHandlers = null;
         }
     }
-
-    public interface ISkillPlayer
-    {
-        public SkillConfig CurrentSkill { get; }
-        public float CurrentTime { get; }
-        public int CurrentFrame { get; }
-        public bool IsPlaying { get; }
-        
-        public void PlaySkill(SkillConfig skill);
-        public void PlaySkill();
-        public void StopCurrentSkill();
-    }
+    
 }
