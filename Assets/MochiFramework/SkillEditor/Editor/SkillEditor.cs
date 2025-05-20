@@ -448,7 +448,9 @@ namespace MochiFramework.Skill.Editor
 
         private void OnClickedNextFrame()
         {
+            PreviewStop();
             SelectFrame++;
+            
         }
 
 
@@ -460,6 +462,7 @@ namespace MochiFramework.Skill.Editor
 
         private void OnClickedPreviousFrame()
         {
+            PreviewStop();
             SelectFrame--;
         }
 
@@ -489,8 +492,10 @@ namespace MochiFramework.Skill.Editor
                 skillEditorConfig.selectFrame = value;
                 SelectionFrameField.value = value + 1;
                 SelectLine.MarkDirtyLayout();
-                
-                _skillPreviewPlayer.Evaluate(value);
+                if (!_skillPreviewPlayer.IsPlaying)
+                {
+                    _skillPreviewPlayer.Evaluate(value);
+                }
             }
 
         }

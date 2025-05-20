@@ -101,26 +101,14 @@ namespace MochiFramework.Skill.Editor
                 }
             }
             OnPlay?.Invoke();
-            playTime = EditorApplication.timeSinceStartup;
-            SystemPlayTime = DateTime.Now;
         }
-        //TODO 测试变量
-        private double playTime;
-        private DateTime SystemPlayTime;
-        private DateTime SystemLastTime;
-        private TimeSpan SystemDetleTime;
         public void Update()
         {
             if(IsNotPreview) return;
             if(!IsPlaying) return;
             
             detleTime = EditorApplication.timeSinceStartup - lastTime;
-            Debug.Log($"计算前:{currentTime}");
             currentTime += detleTime;
-            Debug.Log($"计算后:{currentTime}");
-            SystemDetleTime = DateTime.Now - SystemLastTime;
-            Debug.Log($"系统时间差：{SystemDetleTime.TotalSeconds},播放器时间差:{detleTime}");
-            
             
             if (trackHandlers != null)
             {
@@ -131,12 +119,10 @@ namespace MochiFramework.Skill.Editor
             }
             
             lastTime = EditorApplication.timeSinceStartup;
-            SystemLastTime = DateTime.Now;
             
             if (CurrentFrame >= skillEditor.SkillConfig.FrameCount)
             {
                 StopCurrentSkill();
-                Debug.Log($"系统总时长{(DateTime.Now - SystemPlayTime).TotalSeconds},计算时间差{EditorApplication.timeSinceStartup - playTime},播放器总时长：{currentTime}");
             }
         }
 
