@@ -14,6 +14,7 @@ namespace MochiFramework.Skill.Audio
 
         public override string ClipName => audioAsset == null ? "空Audio" : audioAsset.name;
         public override int OriginalDuration => Mathf.CeilToInt(audioAsset.length * audioAsset.frequency);
+        public override Object UnityClip { get; set; }
 
         public static AudioClip CreateClip(Track track,int startFrame, UnityEngine.AudioClip Clip,int d)
         {

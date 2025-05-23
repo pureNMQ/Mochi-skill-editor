@@ -88,12 +88,18 @@ namespace MochiFramework.Skill.Editor
         private void OnDragExited(DragExitedEvent evt)
         {
             UnityEngine.Object[] objects = DragAndDrop.objectReferences;
-            if (track.CanConvertToClip(objects[0]))
+            if (track.CanConvertToClip<UnityEngine.AnimationClip>(objects[0]))
             {
                 Undo.RegisterCompleteObjectUndo(track.SkillConfig,"Insert Clip");
                 int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
-                track.InsertClipAtFrame(selectFrameIndex, objects[0]);
+                
+                //后面重构，先这么写
+                var skillclip = ((UnityEngine.AnimationClip)objects[0]).UnityAnimationClipToSKillAnimationClip(track,selectFrameIndex);
+                track.InsertClipAtFrame<AnimationClip>(skillclip);
+                //之后重构
                 //NOTE 如果不合并当前组就会被立即撤回，原因尚不清楚
+                
+                
                 Undo.IncrementCurrentGroup();
                 
                 AssetDatabase.SaveAssets();
@@ -109,8 +115,11 @@ namespace MochiFramework.Skill.Editor
             UnityEngine.Object[] objects = DragAndDrop.objectReferences;
             
             //如果拖拽的资源可以转换为轨道的片段，则改变鼠标样式为复制
-            if (track.CanConvertToClip(objects[0]))
+            Debug.Log(objects[0].name);
+            //后期重构
+            if (track.CanConvertToClip<UnityEngine.AnimationClip>(objects[0]))
             {
+                Debug.Log("正确");
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
             }
 

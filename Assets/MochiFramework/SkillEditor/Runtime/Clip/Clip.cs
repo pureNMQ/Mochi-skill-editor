@@ -13,6 +13,8 @@ namespace MochiFramework.Skill
         public abstract string ClipName { get; }
         public abstract int OriginalDuration { get; }
         
+        public abstract Object UnityClip { get; set; }
+        
         public Track Track => track;
         public SkillConfig SkillConfig => track.SkillConfig;
         
@@ -44,7 +46,16 @@ namespace MochiFramework.Skill
         /// </summary>
         [SerializeField] protected int startFrame;
         [SerializeField] protected int duration;
-        
 
+        public static T CreatClip<T>(Track track,int startFrame, Object unityClip,int duration) where T : Clip
+        {
+            T clip =  Activator.CreateInstance<T>();
+            clip.track = track;
+            clip.StartFrame = startFrame;
+            clip.UnityClip = unityClip;
+            clip.duration = duration;
+            return clip;
+        }
+        
     }
 }

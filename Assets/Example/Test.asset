@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ee089738a34d7c4f8acd3b94eab4820, type: 3}
+  m_Name: Test
+  m_EditorClassIdentifier: 
+  SkillName: WW
+  FrameCount: 800
+  frameRate: 30
+  frameTime: 0.033333335
+  tracks:
+  - rid: 1388247218098798595
+  references:
+    version: 2
+    RefIds:
+    - rid: 1388247218098798595
+      type: {class: AnimationTrack, ns: MochiFramework.Skill, asm: MochiFramework.Skill}
+      data:
+        skillConfig: {fileID: 11400000}
+        clips:
+        - rid: 1388247218098798597
+    - rid: 1388247218098798597
+      type: {class: AnimationClip, ns: MochiFramework.Skill, asm: MochiFramework.Skill}
+      data:
+        track:
+          rid: 1388247218098798595
+        startFrame: 13
+        duration: 32
+        animationAsset: {fileID: 7400000, guid: aa2bb98b035ff55448dc2b05f2e04251,
+          type: 2}

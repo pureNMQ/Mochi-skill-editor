@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Object = UnityEngine.Object;
 
 namespace MochiFramework.Skill
 {
@@ -12,6 +13,11 @@ namespace MochiFramework.Skill
     {
         public override string ClipName => animationAsset ? animationAsset.name : "NoAnimationClip";
         public override int OriginalDuration => Mathf.CeilToInt(animationAsset.length * animationAsset.frameRate);
+        public override Object UnityClip
+        {
+            get => animationAsset;
+            set => animationAsset = (UnityEngine.AnimationClip)value;
+        }
 
         public UnityEngine.AnimationClip AnimationAsset
         {
