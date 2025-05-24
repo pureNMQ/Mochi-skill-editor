@@ -2,7 +2,7 @@
 
 namespace MochiFramework.Skill.Audio
 {
-    public class AudioClip:Clip
+    public class SkillAudioSkillClip:SkillClip
     {
         public UnityEngine.AudioClip AudioAsset
         {
@@ -16,7 +16,7 @@ namespace MochiFramework.Skill.Audio
         public override int OriginalDuration => Mathf.CeilToInt(audioAsset.length * audioAsset.frequency);
         public override Object UnityClip { get; set; }
 
-        public static AudioClip CreateClip(Track track,int startFrame, UnityEngine.AudioClip Clip,int d)
+        public static SkillAudioSkillClip CreateClip(SkillTrack skillTrack,int startFrame, UnityEngine.AudioClip Clip,int d)
         {
             return null;
         }

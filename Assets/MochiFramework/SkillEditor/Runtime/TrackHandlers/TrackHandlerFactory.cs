@@ -2,11 +2,11 @@
 {
     public static class TrackHandlerFactory
     {
-        public static TrackHandler Create(Track track,ISkillPlayer player)
+        public static TrackHandler Create(SkillTrack skillTrack,ISkillPlayer player)
         {
-            switch (track)
+            switch (skillTrack)
             {
-                case AnimationTrack animationTrack:
+                case SkillAnimationSkillTrack animationTrack:
                     if(player.Animator == null) return null;
                     return new AnimationTrackHandler(animationTrack, player.Animator);
             }

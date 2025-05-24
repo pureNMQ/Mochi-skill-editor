@@ -3,26 +3,26 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
-    public static class TrackExtensions
+    public static class SkillTrackExtensions
     {
         //判断是否能转换
         //后续重构
-        public static bool  CanConvertToClip<T>(this Skill.Track track,object obj)// where T:Clip
+        public static bool  CanConvertToClip<T>(this Skill.SkillTrack skillTrack,object obj)// where T:Clip
         {
             return obj is T;
         }
         
         
         //判断是否可以插入进去
-        public static bool CanInsertClipAtFrame(this Skill.Track track,int startFrame,int duration, out int correctionDuration,Clip ignoreClip = null)
+        public static bool CanInsertClipAtFrame(this Skill.SkillTrack skillTrack,int startFrame,int duration, out int correctionDuration,SkillClip ignoreSkillClip = null)
         {
-            var clips = track.clips;
-            var skillConfig = track.SkillConfig;
+            var clips = skillTrack.clips;
+            var skillConfig = skillTrack.SkillConfig;
             
             correctionDuration = duration;
             foreach (var item in clips)
             {
-                if(item == ignoreClip) continue;
+                if(item == ignoreSkillClip) continue;
                 
                 //不允许插入到另一个Clip中间
                 //情况一:插入Clip的起始点位于另一个Clip中
@@ -59,16 +59,16 @@ namespace MochiFramework.Skill
         
         
         //是否可以恢复原长度
-        public static void ResetClipDuration(this Skill.Track track,Clip clip)
+        public static void ResetClipDuration(this Skill.SkillTrack skillTrack,SkillClip skillClip)
         {
             //TODO 重置Clip的长度为原始长度 如果可以的话
-            if (track.clips.Contains(clip))
+            if (skillTrack.clips.Contains(skillClip))
             {
-                if (CanInsertClipAtFrame(track,clip.StartFrame, clip.OriginalDuration, out int correctionDuration, clip))
+                if (CanInsertClipAtFrame(skillTrack,skillClip.StartFrame, skillClip.OriginalDuration, out int correctionDuration, skillClip))
                 {
-                    if (clip.OriginalDuration == correctionDuration)
+                    if (skillClip.OriginalDuration == correctionDuration)
                     {
-                        clip.Duration = clip.OriginalDuration;
+                        skillClip.Duration = skillClip.OriginalDuration;
                     }
                 }
             }
@@ -78,18 +78,18 @@ namespace MochiFramework.Skill
         
         
         //在轨道中移动Clip
-        public static void MoveClipToFrame(this Skill.Track track,Clip clip, int startFrame)
+        public static void MoveClipToFrame(this Skill.SkillTrack skillTrack,SkillClip skillClip, int startFrame)
         {
-            var clips = track.clips;
+            var clips = skillTrack.clips;
             
             //类型验证，权限范围验证
-            if (clip is not AnimationClip animationClip || !clips.Contains(animationClip)) return;
+            if (skillClip is not SkillAnimationSkillClip animationClip || !clips.Contains(animationClip)) return;
             //判断是否可以移动到该为止
-            if (!CanInsertClipAtFrame(track,startFrame, clip.Duration, out int correctionDuration, clip)) return;
+            if (!CanInsertClipAtFrame(skillTrack,startFrame, skillClip.Duration, out int correctionDuration, skillClip)) return;
             //判断插入时长度是否被修正，如果被修正则不可以移动
-            if (clip.Duration != correctionDuration) return;
+            if (skillClip.Duration != correctionDuration) return;
             
-            clip.StartFrame = startFrame;
+            skillClip.StartFrame = startFrame;
             
             clips = clips.OrderBy(clip => clip.StartFrame).ToList();
 
@@ -99,32 +99,32 @@ namespace MochiFramework.Skill
         
         
         //插入轨道
-        public static Clip InsertClipAtFrame<T>(this Skill.Track track, Clip clip) where T:Clip
+        public static SkillClip InsertClipAtFrame<T>(this Skill.SkillTrack skillTrack, SkillClip skillClip) where T:SkillClip
         {
-            var clips = track.clips;
+            var clips = skillTrack.clips;
 
-            int duration = clip.OriginalDuration;
-            if (CanInsertClipAtFrame(track,clip.StartFrame, duration, out int correctionDuration))
+            int duration = skillClip.OriginalDuration;
+            if (CanInsertClipAtFrame(skillTrack,skillClip.StartFrame, duration, out int correctionDuration))
             {
                 //AnimationClip clip = Clip.CreatClip<AnimationClip>(track,startFrame, animationClip.UnityClip ,correctionDuration); 
-                Debug.Log($"插入一个动画片段{clip.ClipName}，起始帧为{clip.StartFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
-                clips.Add(clip);
+                Debug.Log($"插入一个动画片段{skillClip.ClipName}，起始帧为{skillClip.StartFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{skillTrack}");
+                clips.Add(skillClip);
                 clips = clips.OrderBy(clip => clip.StartFrame).ToList();
-                return clip;
+                return skillClip;
             }
             return null;
         }
         
         
         //移除片段
-        public static Clip RemoveClip(this Skill.Track track,Clip clip)
+        public static SkillClip RemoveClip(this Skill.SkillTrack skillTrack,SkillClip skillClip)
         {
-            if (clip is AnimationClip animationClip)
+            if (skillClip is SkillAnimationSkillClip animationClip)
             {
-                track.clips.Remove(animationClip);
+                skillTrack.clips.Remove(animationClip);
             }
             
-            return clip;    
+            return skillClip;    
         }
 
         
@@ -139,9 +139,9 @@ namespace MochiFramework.Skill
         // }
 
 
-        public static Clip UnityAnimationClipToSKillAnimationClip(this UnityEngine.AnimationClip clip, Skill.Track track,int startFrame)
+        public static SkillClip UnityAnimationClipToSKillAnimationClip(this AnimationClip clip, Skill.SkillTrack skillTrack,int startFrame)
         {
-            return Clip.CreatClip<AnimationClip>(track, startFrame, clip, Mathf.CeilToInt(clip.length * clip.frameRate));
+            return SkillClip.CreatClip<SkillAnimationSkillClip>(skillTrack, startFrame, clip, Mathf.CeilToInt(clip.length * clip.frameRate));
         }
     }
 }

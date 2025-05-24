@@ -13,7 +13,7 @@ namespace MochiFramework.Skill.Editor
         private ObjectField animationAssetField;
         private Box animationInfoBox;
         
-        private AnimationClip _animationClip;
+        private SkillAnimationSkillClip _animationSkillClip;
 
         // public override VisualElement CreateInspectorGUI()
         // {
@@ -24,7 +24,7 @@ namespace MochiFramework.Skill.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             //TODO 绑定animationClip
-            _animationClip = property.boxedValue as AnimationClip;
+            _animationSkillClip = property.boxedValue as SkillAnimationSkillClip;
             return base.CreatePropertyGUI(property);
         }
 
@@ -36,13 +36,13 @@ namespace MochiFramework.Skill.Editor
             animationAssetField.objectType = typeof(UnityEngine.AnimationClip);
             animationAssetField.allowSceneObjects = false;
             //animationAssetField.BindProperty(serializedObject.FindProperty("animationAsset"));
-            animationAssetField.SetValueWithoutNotify(_animationClip.AnimationAsset);
+            animationAssetField.SetValueWithoutNotify(_animationSkillClip.AnimationAsset);
             animationAssetField.RegisterValueChangedCallback(arg =>
             {
                 if (arg.newValue != arg.previousValue)
                 {
                     //_animationClip.name = $"{nameof(AnimationClip)}({_animationClip.ClipName})";
-                    _animationClip.AnimationAsset = arg.newValue as UnityEngine.AnimationClip;
+                    _animationSkillClip.AnimationAsset = arg.newValue as UnityEngine.AnimationClip;
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                     UpdateSkillEditor();
@@ -52,10 +52,10 @@ namespace MochiFramework.Skill.Editor
             
             //TODO 显示动画资源的信息
             animationInfoBox = new Box();
-            animationInfoBox.Add(new Label($"动画名称:\t{_animationClip.AnimationAsset.name}"));
-            animationInfoBox.Add(new Label($"动画长度:\t{_animationClip.AnimationAsset.length :0.00}s"));
-            animationInfoBox.Add(new Label($"帧率:\t\t{_animationClip.AnimationAsset.frameRate}FPS"));
-            animationInfoBox.Add(new Label($"循环:\t\t{_animationClip.AnimationAsset.isLooping}"));
+            animationInfoBox.Add(new Label($"动画名称:\t{_animationSkillClip.AnimationAsset.name}"));
+            animationInfoBox.Add(new Label($"动画长度:\t{_animationSkillClip.AnimationAsset.length :0.00}s"));
+            animationInfoBox.Add(new Label($"帧率:\t\t{_animationSkillClip.AnimationAsset.frameRate}FPS"));
+            animationInfoBox.Add(new Label($"循环:\t\t{_animationSkillClip.AnimationAsset.isLooping}"));
             root.Add(animationInfoBox);
         }
         

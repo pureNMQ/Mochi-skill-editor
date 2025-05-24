@@ -8,7 +8,7 @@ namespace MochiFramework.Skill
 {
     //TODO 应该继承ScriptableObject,以便持久化存储
     [Serializable]
-    public abstract class Track : IEnumerable<Clip>
+    public abstract class SkillTrack : IEnumerable<SkillClip>
     {
         //技能配置
         [SerializeReference, HideInInspector] protected SkillConfig skillConfig;
@@ -23,14 +23,14 @@ namespace MochiFramework.Skill
         public abstract int ClipCount { get; }
 
 
-        [SerializeReference] public List<Clip> clips = new List<Clip>();
+        [SerializeReference] public List<SkillClip> clips = new List<SkillClip>();
 
-        public virtual Clip GetClipAt(int index)
+        public virtual SkillClip GetClipAt(int index)
         {
             return clips[index];
         }
 
-        public virtual IEnumerator<Clip> GetEnumerator()
+        public virtual IEnumerator<SkillClip> GetEnumerator()
         {
             return clips.GetEnumerator();
         }
@@ -39,11 +39,9 @@ namespace MochiFramework.Skill
 
 
 
-        public abstract void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject,
-            bool isPlaying);
+        public abstract void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject, bool isPlaying);
 
-        public abstract void PreviewStop(GameObject previewObject);
-
+        
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();

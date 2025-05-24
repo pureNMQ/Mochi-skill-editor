@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MochiFramework.Skill.Audio
 {
-    public class AudioTrick:Track
+    public class SkillAudioTrick:SkillTrack
     {
         public override string TrackName => "音频轨道";
         public override int ClipCount => clips.Count;
@@ -12,10 +12,6 @@ namespace MochiFramework.Skill.Audio
         {
             throw new System.NotImplementedException();
         }
-
-        public override void PreviewStop(GameObject previewObject)
-        {
-            throw new System.NotImplementedException();
-        }
+        
     }
 }

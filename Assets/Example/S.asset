@@ -10,29 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1ee089738a34d7c4f8acd3b94eab4820, type: 3}
-  m_Name: Test
+  m_Name: S
   m_EditorClassIdentifier: 
-  SkillName: WW
-  FrameCount: 800
+  SkillName: 
+  FrameCount: 60
   frameRate: 30
   frameTime: 0.033333335
   tracks:
-  - rid: 1388247218098798595
+  - rid: 1388247232431259648
   references:
     version: 2
     RefIds:
-    - rid: 1388247218098798595
-      type: {class: AnimationTrack, ns: MochiFramework.Skill, asm: MochiFramework.Skill}
+    - rid: 1388247232431259648
+      type: {class: SkillAnimationSkillTrack, ns: MochiFramework.Skill, asm: MochiFramework.Skill}
       data:
         skillConfig: {fileID: 11400000}
         clips:
-        - rid: 1388247218098798597
-    - rid: 1388247218098798597
-      type: {class: AnimationClip, ns: MochiFramework.Skill, asm: MochiFramework.Skill}
+        - rid: 1388247232431259654
+    - rid: 1388247232431259654
+      type: {class: SkillAnimationSkillClip, ns: MochiFramework.Skill, asm: MochiFramework.Skill}
       data:
-        track:
-          rid: 1388247218098798595
-        startFrame: 13
+        startFrame: 5
         duration: 32
         animationAsset: {fileID: 7400000, guid: aa2bb98b035ff55448dc2b05f2e04251,
           type: 2}

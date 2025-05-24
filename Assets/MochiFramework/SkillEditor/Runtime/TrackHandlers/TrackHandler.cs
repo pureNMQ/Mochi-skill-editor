@@ -8,11 +8,11 @@ namespace MochiFramework.Skill
         //上次播放的帧数,在卡顿的情况，方便追帧
         protected int lateFrame = 0;
         protected float lateTime = 0;
-        protected Track track;
+        protected SkillTrack SkillTrack;
         
-        public TrackHandler(Track track)
+        public TrackHandler(SkillTrack skillTrack)
         {
-            this.track = track;
+            this.SkillTrack = skillTrack;
         }
 
         public abstract void Play(int currentFrame = 0, float currentTime = 0);

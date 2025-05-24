@@ -6,16 +6,16 @@ namespace MochiFramework.Skill
 {
     public class AnimationTrackHandler : TrackHandler
     {
-        private AnimationTrack animationTrack;
+        private SkillAnimationSkillTrack _skillAnimationSkillTrack;
         private Animator animator;
         private int currentClipIndex;
         private AnimationPlayableOutput playableOutput;
         private PlayableGraph playableGraph;
         private AnimationClipPlayable animationClipPlayable;
         
-        public AnimationTrackHandler(AnimationTrack track,Animator animator) : base(track)
+        public AnimationTrackHandler(SkillAnimationSkillTrack skillTrack,Animator animator) : base(skillTrack)
         {
-            animationTrack = track;
+            _skillAnimationSkillTrack = skillTrack;
             this.animator = animator;
             
             playableGraph = PlayableGraph.Create();
@@ -55,7 +55,9 @@ namespace MochiFramework.Skill
             ChangeAnimationClipIndex(currentFrame);
             if (currentClipIndex >= 0)
             {
-                animationClipPlayable.SetTime(currentTime - animationTrack.clips[currentClipIndex].StartTime);
+                //后续重构
+                var temp = (_skillAnimationSkillTrack.clips[currentClipIndex].StartFrame+1)*SkillTrack.SkillConfig.frameTime;
+                animationClipPlayable.SetTime(currentTime - temp);
             }
             
             playableGraph.Evaluate();
@@ -82,8 +84,8 @@ namespace MochiFramework.Skill
             bool isRebuild = false;
             if (lateFrame < currentFrame)
             {
-                while(currentClipIndex + 1 < animationTrack.ClipCount &&
-                      animationTrack.clips[currentClipIndex + 1].StartFrame < currentFrame)
+                while(currentClipIndex + 1 < _skillAnimationSkillTrack.ClipCount &&
+                      _skillAnimationSkillTrack.clips[currentClipIndex + 1].StartFrame < currentFrame)
                 {
                     currentClipIndex++;
                     isRebuild = true;
@@ -91,7 +93,7 @@ namespace MochiFramework.Skill
             }
             else 
             {
-                while (currentClipIndex >= 0 && animationTrack.clips[currentClipIndex].StartFrame > currentFrame)
+                while (currentClipIndex >= 0 && _skillAnimationSkillTrack.clips[currentClipIndex].StartFrame > currentFrame)
                 {
                     currentClipIndex--;
                     isRebuild = true;
@@ -111,10 +113,12 @@ namespace MochiFramework.Skill
             {
                 animationClipPlayable = AnimationClipPlayable.Create(playableGraph,null);
             }
-            else if (animationTrack.clips[currentClipIndex] is AnimationClip clip)
+            else if (_skillAnimationSkillTrack.clips[currentClipIndex] is SkillAnimationSkillClip clip)
             {
                 animationClipPlayable = AnimationClipPlayable.Create(playableGraph,clip.AnimationAsset);
-                animationClipPlayable.SetTime(lateTime - animationTrack.clips[currentClipIndex].StartTime);
+                //后续重构
+                var temp = (_skillAnimationSkillTrack.clips[currentClipIndex].StartFrame+1)*SkillTrack.SkillConfig.frameTime;
+                animationClipPlayable.SetTime(lateTime - temp);
                 playableOutput.SetSourcePlayable(animationClipPlayable);
                 playableGraph.Play();
             }

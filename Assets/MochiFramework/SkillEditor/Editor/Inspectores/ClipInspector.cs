@@ -7,7 +7,7 @@ using UnityEditor.UIElements;
 
 namespace MochiFramework.Skill.Editor
 {
-    [CustomPropertyDrawer(typeof(Clip))]
+    [CustomPropertyDrawer(typeof(SkillClip))]
     public class ClipInspector : UnityEditor.PropertyDrawer
     {
         private IntegerField startFrameField;
@@ -15,12 +15,12 @@ namespace MochiFramework.Skill.Editor
         
         protected VisualElement root;
         protected SkillEditor skillEditor;
-        protected Clip clip;
+        protected SkillClip SkillClip;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             skillEditor = SkillEditor.GetWindow<SkillEditor>();
-            clip = property.boxedValue as Clip;
+            SkillClip = property.boxedValue as SkillClip;
             root = new VisualElement();
             DrawInspector();
             return root;
@@ -28,12 +28,12 @@ namespace MochiFramework.Skill.Editor
 
         protected virtual void DrawInspector()
         {
-            Label label = new Label(clip.ClipName);
+            Label label = new Label(SkillClip.ClipName);
             root.Add(label);
             //创建开始帧字段
             startFrameField = new IntegerField("起始帧");
             //startFrameField.BindProperty(fieldInfo.GetValue().FindProperty("startFrame"));
-            startFrameField.SetValueWithoutNotify(clip.StartFrame);
+            startFrameField.SetValueWithoutNotify(SkillClip.StartFrame);
             startFrameField.RegisterValueChangedCallback(arg =>
             {
                 //禁止修改为负值
@@ -45,7 +45,7 @@ namespace MochiFramework.Skill.Editor
                 //当值发生变化时更新技能编辑器
                 if (arg.previousValue != arg.newValue)
                 {
-                    clip.StartFrame = arg.newValue;
+                    SkillClip.StartFrame = arg.newValue;
                     UpdateSkillEditor();
                 }
             });
@@ -54,7 +54,7 @@ namespace MochiFramework.Skill.Editor
             //创建时长字段
             durationField = new IntegerField("总帧数");
             //durationField.BindProperty(serializedObject.FindProperty("duration"));
-            durationField.SetValueWithoutNotify(clip.Duration);
+            durationField.SetValueWithoutNotify(SkillClip.Duration);
             durationField.RegisterValueChangedCallback(arg =>
             {
                 //禁止长度小于1
@@ -66,7 +66,7 @@ namespace MochiFramework.Skill.Editor
                 //当值发生变化时更新技能编辑器
                 if (arg.previousValue != arg.newValue)
                 {
-                    clip.Duration = arg.newValue;
+                    SkillClip.Duration = arg.newValue;
                     UpdateSkillEditor();
                 }
             });
