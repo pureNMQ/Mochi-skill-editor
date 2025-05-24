@@ -11,13 +11,14 @@ namespace MochiFramework.Skill
     [Serializable]
     public abstract class SkillClip
     {
+        //Name
         public abstract string ClipName { get; }
+        
+        //
         public abstract int OriginalDuration { get; }
         
+        //片段所抽象的unity资源
         public abstract Object UnityClip { get; set; }
-        
-        //public SkillTrack SkillTrack => skillTrack;
-        //public SkillConfig SkillConfig => skillTrack.SkillConfig;
         
         /// <summary>
         /// 该属性的起始帧为0，受保护的字段startFrame的起始帧为1
@@ -39,20 +40,15 @@ namespace MochiFramework.Skill
             set => duration = value;
         }
         
-        //public float StartTime => startFrame * SkillConfig.frameTime;
-        
-        // [FormerlySerializedAs("track")] [SerializeReference,HideInInspector] 
-        // protected SkillTrack skillTrack;
         /// <summary>
         /// 该字段的起始帧为1，如果想要使用起始帧为0的模式请使用StartFrame属性
         /// </summary>
         [SerializeField] protected int startFrame;
         [SerializeField] protected int duration;
 
-        public static T CreatClip<T>(SkillTrack skillTrack,int startFrame, Object unityClip,int duration) where T : SkillClip
+        public static T CreatClip<T>(int startFrame, Object unityClip,int duration) where T : SkillClip
         {
             T clip =  Activator.CreateInstance<T>();
-           // clip.skillTrack = skillTrack;
             clip.StartFrame = startFrame;
             clip.UnityClip = unityClip;
             clip.duration = duration;

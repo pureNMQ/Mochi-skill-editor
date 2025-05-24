@@ -11,19 +11,27 @@ namespace MochiFramework.Skill
     public abstract class SkillTrack : IEnumerable<SkillClip>
     {
         //技能配置
-        [SerializeReference, HideInInspector] protected SkillConfig skillConfig;
+        /// <summary>
+        /// 重构要删掉
+        /// </summary>
+        [SerializeReference, HideInInspector] 
+        protected SkillConfig skillConfig;
         public SkillConfig SkillConfig => skillConfig;
 
         //当前帧
         protected int currentClip;
         public int CurrentClip => currentClip;
+        
+        //总片段数
+        public abstract int ClipCount { get; }
 
         //轨道名称
         public abstract string TrackName { get; }
-        public abstract int ClipCount { get; }
+        
 
-
-        [SerializeReference] public List<SkillClip> clips = new List<SkillClip>();
+        //轨道中的片段
+        [SerializeReference] 
+        public List<SkillClip> clips = new List<SkillClip>();
 
         public virtual SkillClip GetClipAt(int index)
         {
@@ -35,17 +43,15 @@ namespace MochiFramework.Skill
             return clips.GetEnumerator();
         }
 
-
-
-
-
-        public abstract void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject, bool isPlaying);
-
-        
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
+        
+        public abstract void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject, bool isPlaying);
+
+        
+        
     }
 
 }

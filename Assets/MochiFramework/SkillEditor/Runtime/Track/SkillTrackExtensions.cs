@@ -141,7 +141,7 @@ namespace MochiFramework.Skill
 
         public static SkillClip UnityAnimationClipToSKillAnimationClip(this AnimationClip clip, Skill.SkillTrack skillTrack,int startFrame)
         {
-            return SkillClip.CreatClip<SkillAnimationSkillClip>(skillTrack, startFrame, clip, Mathf.CeilToInt(clip.length * clip.frameRate));
+            return SkillClip.CreatClip<SkillAnimationSkillClip>(startFrame, clip, Mathf.CeilToInt(clip.length * clip.frameRate));
         }
     }
 }
