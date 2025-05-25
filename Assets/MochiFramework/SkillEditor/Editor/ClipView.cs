@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace MochiFramework.Skill.Editor
 {
-    public class ClipView
+    public sealed class ClipView
     {
         private const string CLIP_VIEW_ASSET_PATH = "Assets/MochiFramework/SkillEditor/Editor/ClipView.uxml";
         private Track track;
@@ -46,7 +46,7 @@ namespace MochiFramework.Skill.Editor
             
             //NOTE 调整位置模式为绝对位置，而不是相对自动布局后的位置
             root.style.position = Position.Absolute;
-            SetPosition(clip.StartFrame);
+            SetViewPosition(clip.StartFrame);
             
             //设置三种状态的颜色
             SetCustomColor();
@@ -61,12 +61,20 @@ namespace MochiFramework.Skill.Editor
             root.RegisterCallback<FocusEvent>(OnFocus);
         }
         
+        public void Redraw(float frameUnitWidth,object changeObject = null)
+        {
+            if (this.frameUnitWidth != frameUnitWidth || changeObject == null || changeObject == clip)
+            {
+                this.frameUnitWidth = frameUnitWidth;
+                SetViewPosition(clip.StartFrame);
+            }
+        }
+        
         private void OnFocus(FocusEvent evt)
         {
             skillEditor.ShowObjectOnInspector(clip);
         }
-
-
+        
         private void OnMouseDown(MouseDownEvent evt)
         {
             if (evt.button == 0)
@@ -109,7 +117,7 @@ namespace MochiFramework.Skill.Editor
                     }
                 }
                 
-                SetPosition(frame);
+                SetViewPosition(frame);
                 //NOTE 该元素将在视觉上位于任何重叠的同级元素前面
                 root.BringToFront();
             }
@@ -140,7 +148,7 @@ namespace MochiFramework.Skill.Editor
             }
         }
 
-        private void SetPosition(int frame)
+        private void SetViewPosition(int frame)
         {
             //计算自身位置
             Vector3 pos = root.transform.position;
@@ -169,10 +177,11 @@ namespace MochiFramework.Skill.Editor
             Undo.RegisterCompleteObjectUndo(clip.SkillConfig,"Move Clip");
             track.MoveClipToFrame(clip,lastValidFrame);
             //重新设置View的位置
-            SetPosition(clip.StartFrame);
+            SetViewPosition(clip.StartFrame);
+            Debug.Log("应用拖拽,拖拽到" + lastValidFrame);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            skillEditor.UpdateInspector();
+            //skillEditor.UpdateInspector();
         }
         
         private void Delete()
@@ -181,7 +190,7 @@ namespace MochiFramework.Skill.Editor
             track.RemoveClip(clip);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            skillEditor.UpdateTrack();
+            //skillEditor.UpdateTrack();
         }
         
     }

@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace MochiFramework.Skill.Editor
 {
-    public class TrackView : IDisposable
+    public sealed class TrackView : IDisposable
     {
         private const string MENU_ASSET_PATH = "Assets/MochiFramework/SkillEditor/Editor/TrackMenuView.uxml";
         private const string TRACK_CLIP_ASSET_PATH = "Assets/MochiFramework/SkillEditor/Editor/ClipTrackView.uxml";
@@ -57,32 +57,45 @@ namespace MochiFramework.Skill.Editor
             skillEditor.ShowObjectOnInspector(track);
             Undo.RegisterFullObjectHierarchyUndo(track.SkillConfig,"Insert Clip");
         }
-
-        public void Update()
-        {
-            //清空ClipViews
-            clipViews.Clear();
-            trackClipView.Clear();
-            
-            trackClipView.style.width = skillEditor.SkillConfig.FrameCount * frameUnitWidth;
-            //生成新的ClipView
-            foreach (var clip in track)
-            {
-                ClipView cv = new ClipView();
-                cv.Init(skillEditor,trackClipView,track,clip,frameUnitWidth);
-            }
-        }
         
-        public void Update(float frameUnitWidth)
+        public void Redraw(float frameUnitWidth, bool isClear = true,object changeObject = null)
         {
-            this.frameUnitWidth = frameUnitWidth;
-            Update();
+            if (this.frameUnitWidth != frameUnitWidth)
+            {
+                this.frameUnitWidth = frameUnitWidth;
+                trackClipView.style.width = skillEditor.SkillConfig.FrameCount * frameUnitWidth;
+            }
+
+            if (isClear && (changeObject == null || changeObject == track))
+            {
+                clipViews.Clear();
+                trackClipView.Clear();
+                //生成新的ClipView
+                foreach (var clip in track)
+                {
+                    ClipView cv = new ClipView();
+                    cv.Init(skillEditor, trackClipView, track, clip, frameUnitWidth);
+                    clipViews.Add(cv);
+                }
+            }
+            else if(changeObject == null || track.clips.Contains(changeObject as Clip))
+            {
+                foreach (var cv in clipViews)
+                {
+                    cv.Redraw(frameUnitWidth,changeObject);
+                }
+            }
         }
 
         public void Dispose()
         {
             trackMenuParent.Remove(trackMenuView);
             trackClipParent.Remove(trackClipView);
+        }
+        
+        private void Redraw(bool isClear = true,object changeObject = null)
+        {
+            Redraw(this.frameUnitWidth, isClear, changeObject);
         }
 
         private void OnDragExited(DragExitedEvent evt)
@@ -100,7 +113,7 @@ namespace MochiFramework.Skill.Editor
                 AssetDatabase.Refresh();
                 
                 //刷新View
-                Update();
+                Redraw();
             }
         }
 

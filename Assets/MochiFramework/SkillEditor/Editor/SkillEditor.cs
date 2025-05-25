@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace MochiFramework.Skill.Editor
 {
-    public class SkillEditor : EditorWindow
+    public sealed class SkillEditor : EditorWindow
     {
         private VisualElement root;
         private const string iconPath = "Assets/MochiFramework/SkillEditor/Editor/Icon/Icon.png";
@@ -328,7 +328,7 @@ namespace MochiFramework.Skill.Editor
         /// 当Track数量发生变化或者更换技能配置文件时，请将isClear设为true
         /// </summary>
         /// <param name="isClear"></param>
-        public void UpdateTrack(bool isClear = true)
+        public void UpdateTrack(bool isClear = true,object changeObject = null)
         {
             if (isClear || skillConfig is null)
             {
@@ -338,14 +338,15 @@ namespace MochiFramework.Skill.Editor
                 {
                     TrackView tv = new TrackView(track, TrackMenuContainer, ClipTrackContainer, this);
                     trackViews.Add(tv);
-                    tv.Update(skillEditorConfig.frameUnitWidth);
+                    tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
                 }
             }
             else if(trackViews is not null)
             {
+                Debug.Log($"技能编辑器中刷新值:{changeObject}");
                 foreach (var tv in trackViews)
                 {
-                    tv.Update(skillEditorConfig.frameUnitWidth);
+                    tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
                 }
             }
         }

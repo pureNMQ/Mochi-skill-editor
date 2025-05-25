@@ -16,11 +16,13 @@ namespace MochiFramework.Skill.Editor
         protected VisualElement root;
         protected SkillEditor skillEditor;
         protected Clip clip;
+        protected SerializedProperty property;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             skillEditor = SkillEditor.GetWindow<SkillEditor>();
             clip = property.boxedValue as Clip;
+            this.property = property;
             root = new VisualElement();
             DrawInspector();
             return root;
@@ -32,29 +34,36 @@ namespace MochiFramework.Skill.Editor
             root.Add(label);
             //创建开始帧字段
             startFrameField = new IntegerField("起始帧");
-            //startFrameField.BindProperty(fieldInfo.GetValue().FindProperty("startFrame"));
-            startFrameField.SetValueWithoutNotify(clip.StartFrame);
+            startFrameField.BindProperty(property.FindPropertyRelative("startFrame"));
+            startFrameField.SetValueWithoutNotify(clip.StartFrame + 1);
+            startFrameField.isDelayed = true;
             startFrameField.RegisterValueChangedCallback(arg =>
             {
+                if(arg.previousValue == arg.newValue) return;
                 //禁止修改为负值
-                if (arg.newValue < 0)
+                if (arg.newValue < 1)
                 {
                     startFrameField.value = arg.previousValue;
                 }
-                
-                //当值发生变化时更新技能编辑器
-                if (arg.previousValue != arg.newValue)
+
+                if (clip.Track.MoveClipToFrame(clip, arg.newValue - 1))
                 {
-                    clip.StartFrame = arg.newValue;
                     UpdateSkillEditor();
+                }
+                else
+                {
+                    startFrameField.value = arg.previousValue;
                 }
             });
             root.Add(startFrameField);
             
             //创建时长字段
+            //TODO 总帧数暂时不支持修改
             durationField = new IntegerField("总帧数");
-            //durationField.BindProperty(serializedObject.FindProperty("duration"));
+            durationField.BindProperty(property.FindPropertyRelative("duration"));
             durationField.SetValueWithoutNotify(clip.Duration);
+            durationField.isReadOnly = true;
+            durationField.focusable = false;
             durationField.RegisterValueChangedCallback(arg =>
             {
                 //禁止长度小于1
@@ -66,7 +75,6 @@ namespace MochiFramework.Skill.Editor
                 //当值发生变化时更新技能编辑器
                 if (arg.previousValue != arg.newValue)
                 {
-                    clip.Duration = arg.newValue;
                     UpdateSkillEditor();
                 }
             });
@@ -78,9 +86,8 @@ namespace MochiFramework.Skill.Editor
         {
             if (skillEditor != null)
             {
-                skillEditor.UpdateTrack();
+                skillEditor.UpdateTrack(false,clip);
             }
         }
-        
     }
 }

@@ -36,7 +36,7 @@ namespace MochiFramework.Skill
             set => duration = value;
         }
         
-        public float StartTime => startFrame * SkillConfig.frameTime;
+        public float StartTime => StartFrame * SkillConfig.frameTime;
         
         [SerializeReference,HideInInspector] protected Track track;
         /// <summary>

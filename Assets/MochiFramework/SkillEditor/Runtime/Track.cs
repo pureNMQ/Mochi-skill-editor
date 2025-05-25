@@ -110,19 +110,20 @@ namespace MochiFramework.Skill
             return null;
         }
 
-        public virtual void MoveClipToFrame(Clip clip, int startFrame)
+        public virtual bool MoveClipToFrame(Clip clip, int startFrame)
         {
             //类型验证，权限范围验证
-            if (clip is not AnimationClip animationClip || !clips.Contains(animationClip)) return;
+            if (clip is not AnimationClip animationClip || !clips.Contains(animationClip)) return false;
             //判断是否可以移动到该为止
-            if (!CanInsertClipAtFrame(startFrame, clip.Duration, out int correctionDuration, clip)) return;
+            if (!CanInsertClipAtFrame(startFrame, clip.Duration, out int correctionDuration, clip)) return false;
             //判断插入时长度是否被修正，如果被修正则不可以移动
-            if (clip.Duration != correctionDuration) return;
+            if (clip.Duration != correctionDuration) return false;
             
             clip.StartFrame = startFrame;
             
             clips = clips.OrderBy(clip => clip.StartFrame).ToList();
-
+            
+            return true;
         }
 
         public virtual Clip RemoveClip(Clip clip)
