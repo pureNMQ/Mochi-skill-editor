@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 
@@ -27,7 +24,6 @@ namespace MochiFramework.Skill.Editor
             DrawInspector();
             return root;
         }
-
         protected virtual void DrawInspector()
         {
             Label label = new Label(clip.ClipName);
@@ -35,18 +31,18 @@ namespace MochiFramework.Skill.Editor
             //创建开始帧字段
             startFrameField = new IntegerField("起始帧");
             startFrameField.BindProperty(property.FindPropertyRelative("startFrame"));
-            startFrameField.SetValueWithoutNotify(clip.StartFrame + 1);
+            startFrameField.SetValueWithoutNotify(clip.startFrame);
             startFrameField.isDelayed = true;
             startFrameField.RegisterValueChangedCallback(arg =>
             {
                 if(arg.previousValue == arg.newValue) return;
                 //禁止修改为负值
-                if (arg.newValue < 1)
+                if (arg.newValue < 0)
                 {
                     startFrameField.value = arg.previousValue;
                 }
 
-                if (clip.Track.MoveClipToFrame(clip, arg.newValue - 1))
+                if (clip.Track.MoveClipToFrame(clip, arg.newValue))
                 {
                     UpdateSkillEditor();
                 }
@@ -61,15 +57,15 @@ namespace MochiFramework.Skill.Editor
             //TODO 总帧数暂时不支持修改
             durationField = new IntegerField("总帧数");
             durationField.BindProperty(property.FindPropertyRelative("duration"));
-            durationField.SetValueWithoutNotify(clip.Duration);
+            durationField.SetValueWithoutNotify(clip.duration);
             durationField.isReadOnly = true;
             durationField.focusable = false;
             durationField.RegisterValueChangedCallback(arg =>
             {
-                //禁止长度小于1
                 if (arg.newValue < 1)
                 {
                     durationField.value = arg.previousValue;
+                    return;
                 }
                 
                 //当值发生变化时更新技能编辑器
@@ -79,7 +75,6 @@ namespace MochiFramework.Skill.Editor
                 }
             });
             root.Add(durationField);
-
         }
         
         protected void UpdateSkillEditor()

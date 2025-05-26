@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -46,7 +44,7 @@ namespace MochiFramework.Skill.Editor
             
             //NOTE 调整位置模式为绝对位置，而不是相对自动布局后的位置
             root.style.position = Position.Absolute;
-            SetViewPosition(clip.StartFrame);
+            SetViewPosition(clip.startFrame);
             
             //设置三种状态的颜色
             SetCustomColor();
@@ -66,7 +64,7 @@ namespace MochiFramework.Skill.Editor
             if (this.frameUnitWidth != frameUnitWidth || changeObject == null || changeObject == clip)
             {
                 this.frameUnitWidth = frameUnitWidth;
-                SetViewPosition(clip.StartFrame);
+                SetViewPosition(clip.startFrame);
             }
         }
         
@@ -107,11 +105,11 @@ namespace MochiFramework.Skill.Editor
                 {
                     frame = 0;
                 }
-                //TODO 添加新的判断方式，不会修改长度，只会调整位置
+
                 //判断是否可以移动到该为止
-                if (track.CanInsertClipAtFrame(frame, clip.Duration, out int correctionDuration, clip))
+                if (track.CanInsertClipAtFrame(frame, clip.duration, out int correctionDuration, clip))
                 {
-                    if (clip.Duration == correctionDuration)
+                    if (clip.duration == correctionDuration)
                     {
                         lastValidFrame = frame;
                     }
@@ -154,7 +152,7 @@ namespace MochiFramework.Skill.Editor
             Vector3 pos = root.transform.position;
             pos.x = frame * this.frameUnitWidth;
             root.transform.position = pos;
-            root.style.width = this.clip.Duration * this.frameUnitWidth;
+            root.style.width = this.clip.duration * this.frameUnitWidth;
         }
 
         private void SetCustomColor()
@@ -177,11 +175,9 @@ namespace MochiFramework.Skill.Editor
             Undo.RegisterCompleteObjectUndo(clip.SkillConfig,"Move Clip");
             track.MoveClipToFrame(clip,lastValidFrame);
             //重新设置View的位置
-            SetViewPosition(clip.StartFrame);
-            Debug.Log("应用拖拽,拖拽到" + lastValidFrame);
+            SetViewPosition(clip.startFrame);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            //skillEditor.UpdateInspector();
         }
         
         private void Delete()

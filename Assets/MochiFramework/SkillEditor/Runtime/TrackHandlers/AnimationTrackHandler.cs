@@ -34,10 +34,7 @@ namespace MochiFramework.Skill
             lateTime = currentTime;
             //前面几帧可能没有动画
             currentClipIndex = -1;
-
             ChangeAnimationClipIndex(currentFrame);
-            
-            Debug.Log($"播放开始{currentFrame}，初始化ClipIndex:{currentClipIndex}");
         }
 
         public override void Update(float deltaTime, int currentFrame, float currentTime)
@@ -83,7 +80,7 @@ namespace MochiFramework.Skill
             if (lateFrame < currentFrame)
             {
                 while(currentClipIndex + 1 < animationTrack.ClipCount &&
-                      animationTrack.clips[currentClipIndex + 1].StartFrame < currentFrame)
+                      animationTrack.clips[currentClipIndex + 1].startFrame < currentFrame)
                 {
                     currentClipIndex++;
                     isRebuild = true;
@@ -91,7 +88,7 @@ namespace MochiFramework.Skill
             }
             else 
             {
-                while (currentClipIndex >= 0 && animationTrack.clips[currentClipIndex].StartFrame > currentFrame)
+                while (currentClipIndex >= 0 && animationTrack.clips[currentClipIndex].startFrame > currentFrame)
                 {
                     currentClipIndex--;
                     isRebuild = true;

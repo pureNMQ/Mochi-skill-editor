@@ -29,9 +29,9 @@
                     <ui:VisualElement name="VisualElement" style="background-image: url(&quot;project://database/Assets/MochiFramework/SkillEditor/Editor/Icon/EndFrame.png?fileID=2800000&amp;guid=4a8f6b2d0ad79a147bcf547d5bbf75cb&amp;type=3#EndFrame&quot;); flex-grow: 1;" />
                 </ui:Button>
                 <ui:VisualElement name="SelectionFrameAndTotalFrame" style="flex-grow: 1; flex-direction: row-reverse; padding-top: 0; padding-right: 2px; padding-bottom: 0; padding-left: 2px;">
-                    <uie:IntegerField value="0" name="TotalFrameField" />
+                    <uie:IntegerField value="0" name="TotalFrameField" is-delayed="true" />
                     <ui:Label text="/" display-tooltip-when-elided="true" style="font-size: 21px; -unity-font-style: normal; -unity-text-align: middle-left;" />
-                    <uie:IntegerField value="0" name="SelectionFrameField" is-delayed="false" />
+                    <uie:IntegerField value="0" name="SelectionFrameField" is-delayed="true" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="TrackMenuContainer" style="flex-grow: 1; flex-direction: column;" />

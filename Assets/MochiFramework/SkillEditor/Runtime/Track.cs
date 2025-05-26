@@ -35,16 +35,15 @@ namespace MochiFramework.Skill
                 
                 //不允许插入到另一个Clip中间
                 //情况一:插入Clip的起始点位于另一个Clip中
-                if (startFrame >= item.StartFrame && startFrame < item.EndFrame)
+                if (startFrame >= item.startFrame && startFrame < item.EndFrame)
                 {
-                    Debug.Log("不可插入到其他Clip中");
                     correctionDuration = 0;
                     return false;
                 }
                 //情况二:插入Clip的结束点位于另一个Clip中
-                if (startFrame < item.StartFrame && startFrame + duration >= item.StartFrame)
+                if (startFrame < item.startFrame && startFrame + duration >= item.startFrame)
                 {
-                    int offset = item.StartFrame - startFrame;
+                    int offset = item.startFrame - startFrame;
                     if (offset < correctionDuration)
                     {
                         correctionDuration = offset;
@@ -80,12 +79,16 @@ namespace MochiFramework.Skill
             //TODO 重置Clip的长度为原始长度 如果可以的话
             if (clips.Contains(clip))
             {
-                if (CanInsertClipAtFrame(clip.StartFrame, clip.OriginalDuration, out int correctionDuration, clip))
+                if (CanInsertClipAtFrame(clip.startFrame, clip.OriginalDuration, out int correctionDuration, clip))
                 {
                     if (clip.OriginalDuration == correctionDuration)
                     {
-                        clip.Duration = clip.OriginalDuration;
+                        clip.duration = clip.OriginalDuration;
                     }
+                }
+                else
+                {
+                    Debug.LogWarning($"{this}的长度无法被重置,因为空余长度不足");
                 }
             }
         }
@@ -103,7 +106,7 @@ namespace MochiFramework.Skill
                 AnimationClip clip = AnimationClip.CreateAnimationClip(this,startFrame, animationClip,correctionDuration); 
                 Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
                 clips.Add(clip);
-                clips = clips.OrderBy(clip => clip.StartFrame).ToList();
+                clips = clips.OrderBy(clip => clip.startFrame).ToList();
                 return clip;
             }
 
@@ -115,13 +118,13 @@ namespace MochiFramework.Skill
             //类型验证，权限范围验证
             if (clip is not AnimationClip animationClip || !clips.Contains(animationClip)) return false;
             //判断是否可以移动到该为止
-            if (!CanInsertClipAtFrame(startFrame, clip.Duration, out int correctionDuration, clip)) return false;
+            if (!CanInsertClipAtFrame(startFrame, clip.duration, out int correctionDuration, clip)) return false;
             //判断插入时长度是否被修正，如果被修正则不可以移动
-            if (clip.Duration != correctionDuration) return false;
+            if (clip.duration != correctionDuration) return false;
             
-            clip.StartFrame = startFrame;
+            clip.startFrame = startFrame;
             
-            clips = clips.OrderBy(clip => clip.StartFrame).ToList();
+            clips = clips.OrderBy(clip => clip.startFrame).ToList();
             
             return true;
         }
@@ -135,10 +138,7 @@ namespace MochiFramework.Skill
             
             return clip;    
         }
-
-
-        public abstract void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject,bool isPlaying);
-        public abstract void PreviewStop(GameObject previewObject);
+        
 
         IEnumerator IEnumerable.GetEnumerator()
         {

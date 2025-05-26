@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MochiFramework.Skill
 {
@@ -32,7 +29,7 @@ namespace MochiFramework.Skill
         {
             AnimationClip clip = new AnimationClip();
             clip.track = track;
-            clip.StartFrame = startFrame;
+            clip.startFrame = startFrame;
             clip.animationAsset = unityAnimationClip;
             clip.duration = duration;
             return clip;
@@ -40,7 +37,7 @@ namespace MochiFramework.Skill
         
         public override string ToString()
         {
-            return $"动画名{ClipName},动画起始帧{StartFrame},动画长度{duration}";
+            return $"动画名{ClipName},动画起始帧{startFrame},动画长度{duration}";
         }
     }
 }

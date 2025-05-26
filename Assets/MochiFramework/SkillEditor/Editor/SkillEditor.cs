@@ -2,9 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
-using System;
 using UnityEditor.SceneManagement;
-using UnityEngine.PlayerLoop;
 using System.Collections.Generic;
 
 namespace MochiFramework.Skill.Editor
@@ -343,7 +341,6 @@ namespace MochiFramework.Skill.Editor
             }
             else if(trackViews is not null)
             {
-                Debug.Log($"技能编辑器中刷新值:{changeObject}");
                 foreach (var tv in trackViews)
                 {
                     tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
@@ -405,7 +402,7 @@ namespace MochiFramework.Skill.Editor
 
             SelectionFrameField.RegisterValueChangedCallback<int>(OnSelectionFrameFieldChange);
             TotalFrameField.RegisterValueChangedCallback<int>(OnTotalFrameFieldChange);
-
+            
         }
 
         private void OnTotalFrameFieldChange(ChangeEvent<int> evt)
@@ -417,21 +414,20 @@ namespace MochiFramework.Skill.Editor
             else if (skillConfig != null)
             {
                 TotalFrame = evt.newValue;
+                UpdateTrack(false);
                 TimeShaft.MarkDirtyLayout();
             }
-
-
         }
 
         private void OnSelectionFrameFieldChange(ChangeEvent<int> evt)
         {
-            if (evt.newValue < 1)
+            if (evt.newValue < 0)
             {
                 SelectionFrameField.value = evt.previousValue;
             }
             else
             {
-                skillEditorConfig.selectFrame = evt.newValue - 1;
+                skillEditorConfig.selectFrame = evt.newValue;
                 SelectLine.MarkDirtyLayout();
             }
         }
@@ -491,7 +487,7 @@ namespace MochiFramework.Skill.Editor
                 if (value == skillEditorConfig.selectFrame) return;
                 if (value < 0 || value >= TotalFrame) return;
                 skillEditorConfig.selectFrame = value;
-                SelectionFrameField.value = value + 1;
+                SelectionFrameField.value = value;
                 SelectLine.MarkDirtyLayout();
                 if (!_skillPreviewPlayer.IsPlaying)
                 {
