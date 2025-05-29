@@ -43,7 +43,7 @@ namespace MochiFramework.Skill.Editor
 
             //TODO 设置trackClipView的长度为SkillConf的最长长度
             trackClipView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate().ElementAt(0);
-            trackClipView.style.width = track.SkillConfig.FrameCount * frameUnitWidth;
+            trackClipView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
             trackClipParent.Add(trackClipView);
 
             clipViews = new List<ClipView>();
@@ -64,7 +64,7 @@ namespace MochiFramework.Skill.Editor
             if (this.frameUnitWidth != frameUnitWidth)
             {
                 this.frameUnitWidth = frameUnitWidth;
-                trackClipView.style.width = skillEditor.SkillConfig.FrameCount * frameUnitWidth;
+                trackClipView.style.width = skillEditor.SkillConfig.frameCount * frameUnitWidth;
             }
             
 
@@ -82,13 +82,10 @@ namespace MochiFramework.Skill.Editor
             }
             else if(!isClear && (changeObject == null || changeObject == track))
             {
-                trackClipView.style.width = track.SkillConfig.FrameCount * frameUnitWidth;
-            }
-            else if(changeObject == null || track.clips.Contains(changeObject as Clip))
-            {
+                trackClipView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
                 foreach (var cv in clipViews)
                 {
-                    cv.Redraw(frameUnitWidth,changeObject);
+                    cv.Redraw(frameUnitWidth,null);
                 }
             }
         }

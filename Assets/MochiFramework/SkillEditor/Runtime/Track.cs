@@ -52,9 +52,9 @@ namespace MochiFramework.Skill
             }
             
             //情况三:插入Clip的结束点位于Track长度之外
-            if (startFrame + duration > skillConfig.FrameCount)
+            if (startFrame + duration > skillConfig.frameCount)
             {
-                int offset = skillConfig.FrameCount - startFrame;
+                int offset = skillConfig.frameCount - startFrame;
                 if (offset < correctionDuration)
                 {
                     correctionDuration = offset;

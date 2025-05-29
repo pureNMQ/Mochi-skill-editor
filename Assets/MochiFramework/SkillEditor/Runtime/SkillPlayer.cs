@@ -84,7 +84,7 @@ namespace MochiFramework.Skill.Editor
                 Debug.Log($"轨道更新:{currentFrame},{currentTime}");
             }
 
-            if (currentFrame >= currentSkill.FrameCount)
+            if (currentFrame >= currentSkill.frameCount)
             {
                 StopCurrentSkill();
                 Debug.Log("技能播放结束");

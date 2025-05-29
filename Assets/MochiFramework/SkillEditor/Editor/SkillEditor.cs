@@ -146,7 +146,7 @@ namespace MochiFramework.Skill.Editor
         /// 轨道容器容器的X位置（局部坐标）
         /// </summary>
         /// <returns></returns>
-        private float contentOffsetX => Mathf.Abs(TrackContainerView.horizontalScroller.value);
+        private float contentOffsetX => Mathf.Abs(HorizontalScroller.value);
 
         private void InitTimeShaft()
         {
@@ -155,8 +155,7 @@ namespace MochiFramework.Skill.Editor
 
             TimeShaft.onGUIHandler += DrawTimeShaft;
             SelectLine.onGUIHandler += DrawSelectLine;
-
-            TimeShaft.RegisterCallback<WheelEvent>(OnWheelTimeShaft);
+            
             TimeShaft.RegisterCallback<MouseMoveEvent>(OnMouseMoveTimeShaft);
             TimeShaft.RegisterCallback<MouseDownEvent>(OnMouseDownTimeShaft);
             TimeShaft.RegisterCallback<MouseUpEvent>(OnMouseUpTimeShaft);
@@ -188,23 +187,7 @@ namespace MochiFramework.Skill.Editor
                 SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
             }
         }
-
-        private void OnWheelTimeShaft(WheelEvent evt)
-        {
-            int delta = (int)Mathf.Sign(evt.delta.y) * 2;
-
-            float rePos = contentOffsetX / skillEditorConfig.frameUnitWidth;
-
-            skillEditorConfig.frameUnitWidth = Mathf.Clamp(skillEditorConfig.frameUnitWidth - delta, skillEditorConfig.standFrameUnitWidth, skillEditorConfig.maxFrameUnitWidth);
-
-            TrackContainerView.horizontalScroller.value = rePos * skillEditorConfig.frameUnitWidth;
-
-            UpdateTrackViewSize();
-            UpdateTrack(false);
-            TimeShaft.MarkDirtyLayout();
-            SelectLine.MarkDirtyLayout();
-        }
-
+        
         private void DrawSelectLine()
         {
             if (skillConfig == null) return;
@@ -213,7 +196,7 @@ namespace MochiFramework.Skill.Editor
             Handles.BeginGUI();
             Handles.color = Color.white;
             float posX = SelectFrame * skillEditorConfig.frameUnitWidth - contentOffsetX;
-            float sizeY = TimeShaft.contentRect.size.y + TrackContainerView.contentRect.size.y - TrackContainerView.horizontalScroller.contentRect.height;
+            float sizeY = TimeShaft.contentRect.size.y + TrackContainerMask.contentRect.size.y;
 
             Vector2 pos = default;
             Vector2 size = default;
@@ -245,13 +228,13 @@ namespace MochiFramework.Skill.Editor
             Handles.color = Color.white;
             Rect rect = TimeShaft.contentRect;
 
-            int index = Mathf.CeilToInt(TrackContainerView.horizontalScroller.value / skillEditorConfig.frameUnitWidth);
+            int index = Mathf.CeilToInt(HorizontalScroller.value / skillEditorConfig.frameUnitWidth);
 
             //绘制的第一帧的起始位置
             float startOffset = 0;
             if (index > 0)
             {
-                startOffset = TrackContainerView.horizontalScroller.value % skillEditorConfig.frameUnitWidth;
+                startOffset = HorizontalScroller.value % skillEditorConfig.frameUnitWidth;
                 if (startOffset > 0) startOffset = skillEditorConfig.frameUnitWidth - startOffset;
             }
 
@@ -305,21 +288,106 @@ namespace MochiFramework.Skill.Editor
         #endregion
 
         #region TrackView
-        private ScrollView TrackContainerView;
-        private VisualElement ClipTrackContainer => TrackContainerView.contentContainer;
+        //private ScrollView TrackContainerView;
+        private VisualElement TrackContainer;//=> TrackContainerView.contentContainer;
         private VisualElement TrackMenuContainer;
+        private VisualElement TrackContainerMask;
+        private VisualElement Content;
+        private Scroller VerticalScroller;
+        private Scroller HorizontalScroller;
         private List<TrackView> trackViews;
 
         private void InitTrackView()
         {
-            TrackContainerView = root.Q<ScrollView>(nameof(TrackContainerView));
+            Content = root.Q<VisualElement>(nameof(Content));
+            TrackContainer = root.Q<VisualElement>(nameof(TrackContainer));
             TrackMenuContainer = root.Q<VisualElement>(nameof(TrackMenuContainer));
+            TrackContainerMask = root.Q<VisualElement>(nameof(TrackContainerMask));
+            VerticalScroller = root.Q<Scroller>(nameof(VerticalScroller));
+            HorizontalScroller = root.Q<Scroller>(nameof(HorizontalScroller));
             trackViews = new List<TrackView>();
+            //NOTE 此处注册两个是事件是由于Scroller的样式由一对父子视窗元素决定，两者其中之一发生变化Scroller就需要修改
+            TrackContainerMask.RegisterCallback<GeometryChangedEvent>(OnTrackContainerChanged);
+            TrackContainer.RegisterCallback<GeometryChangedEvent>(OnTrackContainerChanged);
+            
+            //TODO 鼠标操作事件
+            Content.RegisterCallback<WheelEvent>(OnWheelContent);
+            
+            
+            VerticalScroller.valueChanged += OnVerticalScrollerChange;
+            HorizontalScroller.valueChanged += OnHorizontalScrollerChange;
+        }
+        
+        private void OnTrackContainerChanged(GeometryChangedEvent evt)
+        {
+            HorizontalScroller.highValue = Mathf.Max(0,TrackContainer.contentRect.width - TrackContainerMask.contentRect.width + 1);
+            VerticalScroller.highValue = Mathf.Max(0,TrackContainer.contentRect.height - TrackContainerMask.contentRect.height);
+            
+            HorizontalScroller.Adjust(TrackContainerMask.contentRect.width/TrackContainer.contentRect.width);
+            VerticalScroller.Adjust(TrackContainerMask.contentRect.height/TrackContainer.contentRect.height);
+        }
+        
+        
+        private void OnWheelContent(WheelEvent evt)
+        {
+            if (evt.ctrlKey)
+            {
+                WheelVerticalMove(evt.delta.y);
+            }
+            else if(evt.shiftKey)
+            {
+                WheelHorizontalMove(evt.delta.x);
+            }
+            else
+            {
+                WheelScale(evt.delta.y);    
+            }
         }
 
+        private void WheelHorizontalMove(float delta)
+        {
+            //轨道的水平轴移动，根据帧单位大小进行缩放，方便操作
+            HorizontalScroller.value += delta * skillEditorConfig.frameUnitWidth;
+        }
+
+        private void WheelVerticalMove(float delta)
+        {
+            VerticalScroller.value += delta;
+        }
+
+        private void WheelScale(float delta)
+        {
+            int sign = (int)Mathf.Sign(delta) * 2;
+            float rePos = contentOffsetX / skillEditorConfig.frameUnitWidth;
+            skillEditorConfig.frameUnitWidth = Mathf.Clamp(skillEditorConfig.frameUnitWidth - sign, skillEditorConfig.standFrameUnitWidth, skillEditorConfig.maxFrameUnitWidth);
+            HorizontalScroller.value = rePos * skillEditorConfig.frameUnitWidth;
+            UpdateTrackViewSize();
+            UpdateTrack(false);
+            TimeShaft.MarkDirtyLayout();
+            SelectLine.MarkDirtyLayout();
+        }
+
+        private void OnHorizontalScrollerChange(float value)
+        {
+            Vector3 position = TrackContainer.transform.position;
+            position.x = -value;
+            TrackContainer.transform.position = position;
+        }
+
+        private void OnVerticalScrollerChange(float value)
+        {
+            Vector3 position = TrackMenuContainer.transform.position;
+            position.y = -value;
+            TrackMenuContainer.transform.position = position;
+            
+            position = TrackContainer.transform.position;
+            position.y = -value;
+            TrackContainer.transform.position = position;
+        }
+        
         private void UpdateTrackViewSize()
         {
-            TrackContainerView.contentContainer.style.width = TotalFrame * skillEditorConfig.frameUnitWidth;
+            TrackContainer.style.width = TotalFrame * skillEditorConfig.frameUnitWidth;
         }
         
         /// <summary>
@@ -334,7 +402,7 @@ namespace MochiFramework.Skill.Editor
                 if (skillConfig == null) return;
                 foreach (var track in skillConfig.tracks)
                 {
-                    TrackView tv = new TrackView(track, TrackMenuContainer, ClipTrackContainer, this);
+                    TrackView tv = new TrackView(track, TrackMenuContainer, TrackContainer, this);
                     trackViews.Add(tv);
                     tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
                 }
@@ -402,7 +470,6 @@ namespace MochiFramework.Skill.Editor
 
             SelectionFrameField.RegisterValueChangedCallback<int>(OnSelectionFrameFieldChange);
             TotalFrameField.RegisterValueChangedCallback<int>(OnTotalFrameFieldChange);
-            
         }
 
         private void OnTotalFrameFieldChange(ChangeEvent<int> evt)
@@ -436,9 +503,9 @@ namespace MochiFramework.Skill.Editor
         private void OnClickedEndFrame()
         {
             SelectFrame = TotalFrame - 1;
-            if (TrackContainerView.horizontalScroller.highValue > 0)
+            if (HorizontalScroller.highValue > 0)
             {
-                TrackContainerView.horizontalScroller.value = TrackContainerView.horizontalScroller.highValue;
+                HorizontalScroller.value = HorizontalScroller.highValue;
             }
         }
 
@@ -467,7 +534,7 @@ namespace MochiFramework.Skill.Editor
         private void OnClickedStartFrame()
         {
             SelectFrame = 0;
-            TrackContainerView.horizontalScroller.value = TrackContainerView.horizontalScroller.lowValue;
+            HorizontalScroller.value = HorizontalScroller.lowValue;
         }
 
         #endregion
@@ -507,7 +574,7 @@ namespace MochiFramework.Skill.Editor
                 }
                 else
                 {
-                    return skillConfig.FrameCount;
+                    return skillConfig.frameCount;
                 }
             }
 
@@ -516,7 +583,7 @@ namespace MochiFramework.Skill.Editor
                 if (skillConfig != null && value > 0)
                 {
                     //TODO 对于帧数变少做出警告
-                    skillConfig.FrameCount = value;
+                    skillConfig.frameCount = value;
                     UpdateTrackViewSize();
                 }
             }
@@ -525,6 +592,11 @@ namespace MochiFramework.Skill.Editor
 
         public void SetSkillConfig(SkillConfig skillConfig)
         {
+            if (this.skillConfig != null)
+            {
+                this.skillConfig.onValidateAction -= RedrawEditor;
+            }
+
             this.skillConfig = skillConfig;
 
             if (skillConfig != null)
@@ -539,13 +611,14 @@ namespace MochiFramework.Skill.Editor
                     AssetDatabase.SaveAssets();
                     AssetDatabase.Refresh();
                 }
-                
+
+                this.skillConfig.onValidateAction += RedrawEditor;
                 _skillPreviewPlayer.Rebuild();
             }
 
             SelectFrame = 0;
-            TrackContainerView.horizontalScroller.value = 0;
-            TrackContainerView.verticalScroller.value = 0;
+            HorizontalScroller.value = 0;
+            VerticalScroller.value = 0;
 
             RedrawEditor();
         }
@@ -591,7 +664,7 @@ namespace MochiFramework.Skill.Editor
 
         public int GetFrameIndexByMousePos(Vector2 mousePos)
         {
-            float localPos = TrackContainerView.WorldToLocal(mousePos).x + contentOffsetX;
+            float localPos = TrackContainer.WorldToLocal(mousePos).x + contentOffsetX;
             int index = Mathf.FloorToInt(localPos / skillEditorConfig.frameUnitWidth);
 
             if (index > TotalFrame)
@@ -611,8 +684,7 @@ namespace MochiFramework.Skill.Editor
                 {
                     SkillConfigField.SetValueWithoutNotify(skillConfig);
                 }
-                
-                TotalFrameField.value = skillConfig.FrameCount;
+                TotalFrameField.value = skillConfig.frameCount;
             }
             
             TimeShaft.MarkDirtyRepaint();

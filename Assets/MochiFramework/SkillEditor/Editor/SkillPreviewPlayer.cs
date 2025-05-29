@@ -120,7 +120,7 @@ namespace MochiFramework.Skill.Editor
             
             lastTime = EditorApplication.timeSinceStartup;
             
-            if (CurrentFrame >= skillEditor.SkillConfig.FrameCount)
+            if (CurrentFrame >= skillEditor.SkillConfig.frameCount)
             {
                 StopCurrentSkill();
             }
