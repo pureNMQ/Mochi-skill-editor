@@ -142,6 +142,10 @@ namespace MochiFramework.Skill.Editor
         private IMGUIContainer TimeShaft;
         private IMGUIContainer SelectLine;
 
+        // private Label SelectFrameTip;
+        // private Label MoveClipStartTip;
+        // private Label MoveClipEndTip;
+        
         /// <summary>
         /// 轨道容器容器的X位置（局部坐标）
         /// </summary>
@@ -152,6 +156,10 @@ namespace MochiFramework.Skill.Editor
         {
             TimeShaft = root.Q<IMGUIContainer>(nameof(TimeShaft));
             SelectLine = root.Q<IMGUIContainer>(nameof(SelectLine));
+            
+            // SelectFrameTip = root.Q<Label>(nameof(SelectFrameTip));
+            // MoveClipStartTip = root.Q<Label>(nameof(MoveClipStartTip));
+            // MoveClipEndTip = root.Q<Label>(nameof(MoveClipEndTip));
 
             TimeShaft.onGUIHandler += DrawTimeShaft;
             SelectLine.onGUIHandler += DrawSelectLine;
@@ -160,6 +168,11 @@ namespace MochiFramework.Skill.Editor
             TimeShaft.RegisterCallback<MouseDownEvent>(OnMouseDownTimeShaft);
             TimeShaft.RegisterCallback<MouseUpEvent>(OnMouseUpTimeShaft);
             TimeShaft.RegisterCallback<MouseOutEvent>(OnMouseOutTimeShaft);
+
+
+            // SelectFrameTip.style.display = DisplayStyle.None;
+            // MoveClipStartTip.style.display = DisplayStyle.None;
+            // MoveClipEndTip.style.display = DisplayStyle.None;
         }
 
         private void OnMouseOutTimeShaft(MouseOutEvent evt)
@@ -191,8 +204,7 @@ namespace MochiFramework.Skill.Editor
         private void DrawSelectLine()
         {
             if (skillConfig == null) return;
-
-
+            
             Handles.BeginGUI();
             Handles.color = Color.white;
             float posX = SelectFrame * skillEditorConfig.frameUnitWidth - contentOffsetX;
@@ -201,24 +213,37 @@ namespace MochiFramework.Skill.Editor
             Vector2 pos = default;
             Vector2 size = default;
             Rect rect = default;
-
-            if (posX >= 0)
+            
+            if (posX >= TrackContainerMask.contentRect.width)
+            {
+                pos = default;
+                size = default;
+            }
+            else if(posX + skillEditorConfig.frameUnitWidth > TrackContainerMask.contentRect.width)
+            {
+                pos = new Vector2(posX, 0);
+                size = new Vector2(TrackContainerMask.contentRect.width - posX, sizeY);
+            }
+            else if (posX >= 0)
             {
                 pos = new Vector2(posX, 0);
                 size = new Vector2(skillEditorConfig.frameUnitWidth, sizeY);
-                rect = new Rect(pos, size);
-                Handles.DrawSolidRectangleWithOutline(rect, new Color(1, 1, 1, 0.1f), new Color(1, 1, 1, 0.1f));
             }
             else if (posX + skillEditorConfig.frameUnitWidth > 0)
             {
                 pos = new Vector2(0, 0);
                 size = new Vector2(skillEditorConfig.frameUnitWidth + posX, sizeY);
-                rect = new Rect(pos, size);
-                Handles.DrawSolidRectangleWithOutline(rect, new Color(1, 1, 1, 0.1f), new Color(1, 1, 1, 0.1f));
+            }
+            
+            rect = new Rect(pos, size);
+            Handles.DrawSolidRectangleWithOutline(rect, new Color(1, 1, 1, 0.1f), new Color(1, 1, 1, 0.1f));
+            Handles.EndGUI();
+            if (skillEditorConfig.selectLineDragging)
+            {
+                DrawFrameTip(SelectFrame,$"{SelectFrame}",new Color(0,0,0,0.5f),Color.white);
             }
 
-
-            Handles.EndGUI();
+            
         }
 
         private void DrawTimeShaft()
@@ -252,7 +277,7 @@ namespace MochiFramework.Skill.Editor
                     Handles.color = Color.white;
                     Handles.DrawLine(new Vector3(x, rect.height - 15), new Vector3(x, rect.height));
                     string indexStr = index.ToString();
-                    Handles.Label(new Vector3(x - indexStr.Length * 4f, rect.height - 25), indexStr);
+                    Handles.Label(new Vector3(x - indexStr.Length * 3f, rect.height - 25), indexStr);
                 }
                 else if (index % SmallStep == 0)
                 {
@@ -261,7 +286,7 @@ namespace MochiFramework.Skill.Editor
                     if (skillEditorConfig.frameUnitWidth > 6)
                     {
                         string indexStr = index.ToString();
-                        Handles.Label(new Vector3(x - indexStr.Length * 4f, rect.height - 20), indexStr);
+                        Handles.Label(new Vector3(x - indexStr.Length * 3f, rect.height - 20), indexStr);
                     }
                 }
                 else if (skillEditorConfig.frameUnitWidth > 6)
@@ -280,19 +305,29 @@ namespace MochiFramework.Skill.Editor
 
             Handles.color = Color.black;
             Handles.DrawLine(new Vector3(0, TimeShaft.contentRect.height), new Vector3(TimeShaft.contentRect.width, TimeShaft.contentRect.height));
-
             Handles.EndGUI();
         }
 
+        private void DrawFrameTip(int frame,string text,Color backgroundColor,Color textColor)
+        {
+            Handles.BeginGUI();
+            Handles.color =textColor;
+            float textOffset = text.Length * 3f;
+            float posX = frame * skillEditorConfig.frameUnitWidth - contentOffsetX;
+            Vector3 labelPos = new Vector3(posX + skillEditorConfig.frameUnitWidth / 2f - textOffset, TimeShaft.contentRect.size.y / 2);
+                
+            Rect backgroundRect = new Rect(new Vector2(labelPos.x - 2,labelPos.y - 10), new Vector2(text.Length * 6 + 5, 20));
+            Handles.DrawSolidRectangleWithOutline(backgroundRect,backgroundColor, backgroundColor);
+            Handles.Label(labelPos, text);
+        }
 
         #endregion
 
         #region TrackView
-        //private ScrollView TrackContainerView;
-        private VisualElement TrackContainer;//=> TrackContainerView.contentContainer;
-        private VisualElement TrackMenuContainer;
-        private VisualElement TrackContainerMask;
         private VisualElement Content;
+        private VisualElement TrackContainerMask;
+        private VisualElement TrackContainer;
+        private VisualElement TrackMenuContainer;
         private Scroller VerticalScroller;
         private Scroller HorizontalScroller;
         private List<TrackView> trackViews;
@@ -326,7 +361,6 @@ namespace MochiFramework.Skill.Editor
             HorizontalScroller.Adjust(TrackContainerMask.contentRect.width/TrackContainer.contentRect.width);
             VerticalScroller.Adjust(TrackContainerMask.contentRect.height/TrackContainer.contentRect.height);
         }
-        
         
         private void OnWheelContent(WheelEvent evt)
         {
@@ -432,6 +466,8 @@ namespace MochiFramework.Skill.Editor
             }
 
             trackViews.Clear();
+            //NOTE: 容器宽度被撑开（垂直排列）后，不会自动缩回
+            TrackContainer.style.width = 0;
         }
 
         #endregion
@@ -447,7 +483,6 @@ namespace MochiFramework.Skill.Editor
         private IntegerField SelectionFrameField;
         private IntegerField TotalFrameField;
         
-        private VisualElement PlayOrStopIcon;
 
         private void InitController()
         {
@@ -460,7 +495,6 @@ namespace MochiFramework.Skill.Editor
             SelectionFrameField = root.Q<IntegerField>(nameof(SelectionFrameField));
             TotalFrameField = root.Q<IntegerField>(nameof(TotalFrameField));
             
-            PlayOrStopIcon = PlayOrStopButton.Q<VisualElement>(nameof(PlayOrStopIcon));
 
             StartFrameButton.clicked += OnClickedStartFrame;
             PreviousFrameButton.clicked += OnClickedPreviousFrame;
@@ -556,6 +590,7 @@ namespace MochiFramework.Skill.Editor
                 skillEditorConfig.selectFrame = value;
                 SelectionFrameField.value = value;
                 SelectLine.MarkDirtyLayout();
+                
                 if (!_skillPreviewPlayer.IsPlaying)
                 {
                     _skillPreviewPlayer.Evaluate(value);
@@ -570,7 +605,7 @@ namespace MochiFramework.Skill.Editor
             {
                 if (skillConfig == null)
                 {
-                    return -1;
+                    return 0;
                 }
                 else
                 {
@@ -582,7 +617,6 @@ namespace MochiFramework.Skill.Editor
             {
                 if (skillConfig != null && value > 0)
                 {
-                    //TODO 对于帧数变少做出警告
                     skillConfig.frameCount = value;
                     UpdateTrackViewSize();
                 }
@@ -615,11 +649,16 @@ namespace MochiFramework.Skill.Editor
                 this.skillConfig.onValidateAction += RedrawEditor;
                 _skillPreviewPlayer.Rebuild();
             }
+            else
+            {
+                TotalFrameField.SetValueWithoutNotify(0);
+                SelectionFrameField.SetValueWithoutNotify(0);
+            }
 
             SelectFrame = 0;
             HorizontalScroller.value = 0;
             VerticalScroller.value = 0;
-
+            
             RedrawEditor();
         }
 
@@ -632,9 +671,9 @@ namespace MochiFramework.Skill.Editor
         private void CreateSkillPreviewPlayer()
         {
             _skillPreviewPlayer = new SkillPreviewPlayer(this);
-            _skillPreviewPlayer.OnPlay += () => PlayOrStopIcon.AddToClassList("playing");
-            _skillPreviewPlayer.OnPause += () => PlayOrStopIcon.RemoveFromClassList("playing");
-            _skillPreviewPlayer.OnStop += () => PlayOrStopIcon.RemoveFromClassList("playing");
+            _skillPreviewPlayer.OnPlay += () => PlayOrStopButton.AddToClassList("playing");
+            _skillPreviewPlayer.OnPause += () => PlayOrStopButton.RemoveFromClassList("playing");
+            _skillPreviewPlayer.OnStop += () => PlayOrStopButton.RemoveFromClassList("playing");
         }
         
 
@@ -664,7 +703,7 @@ namespace MochiFramework.Skill.Editor
 
         public int GetFrameIndexByMousePos(Vector2 mousePos)
         {
-            float localPos = TrackContainer.WorldToLocal(mousePos).x + contentOffsetX;
+            float localPos = TrackContainerMask.WorldToLocal(mousePos).x + contentOffsetX;
             int index = Mathf.FloorToInt(localPos / skillEditorConfig.frameUnitWidth);
 
             if (index > TotalFrame)
