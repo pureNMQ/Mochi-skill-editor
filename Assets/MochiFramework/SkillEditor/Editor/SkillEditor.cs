@@ -355,11 +355,17 @@ namespace MochiFramework.Skill.Editor
         
         private void OnTrackContainerChanged(GeometryChangedEvent evt)
         {
-            HorizontalScroller.highValue = Mathf.Max(0,TrackContainer.contentRect.width - TrackContainerMask.contentRect.width + 1);
-            VerticalScroller.highValue = Mathf.Max(0,TrackContainer.contentRect.height - TrackContainerMask.contentRect.height);
+            float viewWidth = TrackContainerMask.contentRect.width;
+            float viewHeight = TrackContainerMask.contentRect.height;
             
-            HorizontalScroller.Adjust(TrackContainerMask.contentRect.width/TrackContainer.contentRect.width);
-            VerticalScroller.Adjust(TrackContainerMask.contentRect.height/TrackContainer.contentRect.height);
+            float contentWidth = TrackContainer.contentRect.width + 1;
+            float contentHeight = TrackContainer.contentRect.height + 40;
+            
+            HorizontalScroller.highValue = Mathf.Max(0,contentWidth - viewWidth);
+            VerticalScroller.highValue = Mathf.Max(0,contentHeight - viewHeight);
+            
+            HorizontalScroller.Adjust(viewWidth/contentWidth);
+            VerticalScroller.Adjust(viewHeight/contentHeight);
         }
         
         private void OnWheelContent(WheelEvent evt)

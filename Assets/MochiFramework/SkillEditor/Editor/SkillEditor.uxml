@@ -26,15 +26,12 @@
             </ui:VisualElement>
             <ui:VisualElement name="TrackMenuMask" style="flex-grow: 1; flex-direction: column; visibility: visible; overflow: hidden; flex-shrink: 1; transform-origin: left top;">
                 <ui:VisualElement name="TrackMenuContainer" style="flex-grow: 0; flex-direction: column; display: flex; visibility: visible; overflow: visible; opacity: 1; flex-shrink: 0; transform-origin: left top;" />
+                <ui:Button text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" focusable="false" enable-rich-text="false" style="flex-basis: 40px; background-color: rgba(0, 0, 0, 0); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(93, 93, 93); border-right-color: rgb(93, 93, 93); border-top-color: rgb(93, 93, 93); border-bottom-color: rgb(93, 93, 93); font-size: 30px; -unity-text-align: middle-center; -unity-font-style: bold; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; color: rgb(165, 165, 165);" />
             </ui:VisualElement>
             <ui:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 13px; min-height: 13px; background-color: rgb(53, 53, 53); visibility: visible; flex-basis: 13px;" />
         </ui:VisualElement>
         <ui:VisualElement name="Right" style="flex-shrink: 1; flex-grow: 1; height: auto; width: auto;">
-            <ui:IMGUIContainer name="TimeShaft" style="flex-basis: 30px; margin-right: 0; border-left-color: rgb(52, 52, 52); border-right-color: rgb(52, 52, 52); border-top-color: rgb(52, 52, 52); border-bottom-color: rgb(52, 52, 52); border-right-width: 1px; border-bottom-width: 1px; padding-right: 0; flex-shrink: 0; flex-direction: row;">
-                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SelectFrameTip" picking-mode="Ignore" class="FrameTip" />
-                <ui:Label tabindex="-1" text="1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="MoveClipStartTip" picking-mode="Ignore" class="FrameTip" />
-                <ui:Label tabindex="-1" text="2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="MoveClipEndTip" picking-mode="Ignore" class="FrameTip" style="display: flex; visibility: visible;" />
-            </ui:IMGUIContainer>
+            <ui:IMGUIContainer name="TimeShaft" style="flex-basis: 30px; margin-right: 0; border-left-color: rgb(52, 52, 52); border-right-color: rgb(52, 52, 52); border-top-color: rgb(52, 52, 52); border-bottom-color: rgb(52, 52, 52); border-right-width: 1px; border-bottom-width: 1px; padding-right: 0; flex-shrink: 0; flex-direction: row;" />
             <ui:VisualElement name="TrackContainerMask" style="flex-grow: 1; flex-shrink: 1; overflow: hidden;">
                 <ui:VisualElement name="TrackContainer" style="flex-grow: 0; flex-shrink: 0;" />
             </ui:VisualElement>
