@@ -186,7 +186,7 @@ namespace MochiFramework.Skill.Editor
             track.RemoveClip(clip);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            //skillEditor.UpdateTrack();
+            skillEditor.UpdateTrack();
         }
         
     }

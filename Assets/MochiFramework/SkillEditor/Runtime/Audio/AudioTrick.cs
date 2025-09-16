@@ -1,4 +1,7 @@
-﻿namespace MochiFramework.Skill.Audio
+﻿using UnityEngine;
+using System.Linq;
+
+namespace MochiFramework.Skill
 {
     public class AudioTrick : Track
     {
@@ -28,10 +31,17 @@
             return null;
         }
 
-        private Clip InsertAudioClipAtFrame(int startFrame, UnityEngine.AudioClip clip)
+        private Clip InsertAudioClipAtFrame(int startFrame, UnityEngine.AudioClip unityAudioClip)
         {
-             //TODO 插入音频剪辑
-
+             int duration = Mathf.CeilToInt(unityAudioClip.length * skillConfig.frameRate);
+             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
+             {
+                 AudioClip clip = AudioClip.CreateAudioClip(this,startFrame, unityAudioClip,correctionDuration); 
+                 Debug.Log($"插入一个音频片段{unityAudioClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
+                 clips.Add(clip);
+                 clips = clips.OrderBy(clip => clip.startFrame).ToList();
+                 return clip;
+             }
              return null;
         }
         

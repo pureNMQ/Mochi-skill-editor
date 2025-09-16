@@ -93,7 +93,7 @@ namespace MochiFramework.Skill
         public virtual bool MoveClipToFrame(Clip clip, int startFrame)
         {
             //类型验证，权限范围验证
-            if (clip is not AnimationClip animationClip || !clips.Contains(animationClip)) return false;
+            if (!clips.Contains(clip)) return false;
             //判断是否可以移动到该为止
             if (!CanInsertClipAtFrame(startFrame, clip.duration, out int correctionDuration, clip)) return false;
             //判断插入时长度是否被修正，如果被修正则不可以移动
@@ -108,11 +108,7 @@ namespace MochiFramework.Skill
 
         public virtual Clip RemoveClip(Clip clip)
         {
-            if (clip is AnimationClip animationClip)
-            {
-                clips.Remove(animationClip);
-            }
-            
+            clips.Remove(clip);
             return clip;    
         }
         

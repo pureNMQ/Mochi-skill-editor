@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace MochiFramework.Skill.Audio
+namespace MochiFramework.Skill
 {
-    public class AudioClip:Clip
+    public class AudioClip : Clip
     {
         public UnityEngine.AudioClip AudioAsset
         {
@@ -14,10 +14,17 @@ namespace MochiFramework.Skill.Audio
 
         public override string ClipName => audioAsset == null ? "空Audio" : audioAsset.name;
         public override int OriginalDuration => Mathf.CeilToInt(audioAsset.length * audioAsset.frequency);
+        
 
-        public static AudioClip CreateClip(Track track,int startFrame, UnityEngine.AudioClip Clip,int d)
+        public static AudioClip CreateAudioClip(Track track,int startFrame, UnityEngine.AudioClip unityAudioClip,int duration)
         {
-            return null;
+            AudioClip clip = new AudioClip();
+            
+            clip.track = track;
+            clip.startFrame = startFrame;
+            clip.audioAsset = unityAudioClip;
+            clip.duration = duration;
+            return clip;
         }
     }
 }

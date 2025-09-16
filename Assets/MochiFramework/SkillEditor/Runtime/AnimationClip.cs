@@ -17,13 +17,6 @@ namespace MochiFramework.Skill
         }
 
         [SerializeField] protected UnityEngine.AnimationClip animationAsset;
-        
-        public static AnimationClip CreateAnimationClip(Track track,int startFrame, UnityEngine.AnimationClip unityAnimationClip)
-        {
-            //TODO 按照SkillConfig中的帧率来计算
-            int duration = Mathf.CeilToInt(unityAnimationClip.length * unityAnimationClip.frameRate);
-            return CreateAnimationClip(track,startFrame,unityAnimationClip,duration);
-        }
 
         public static AnimationClip CreateAnimationClip(Track track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
         {
