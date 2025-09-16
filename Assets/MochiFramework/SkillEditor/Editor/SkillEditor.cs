@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
+using MochiFramework.Skill.MochiFramework.SkillEditor.Editor;
 
 namespace MochiFramework.Skill.Editor
 {
@@ -479,7 +480,9 @@ namespace MochiFramework.Skill.Editor
         #endregion
 
         #region Console
-
+        
+        private Button AddTrackButton;
+        
         private Button StartFrameButton;
         private Button PreviousFrameButton;
         private Button PlayOrStopButton;
@@ -492,6 +495,7 @@ namespace MochiFramework.Skill.Editor
 
         private void InitController()
         {
+            AddTrackButton = root.Q<Button>(nameof(AddTrackButton));
             StartFrameButton = root.Q<Button>(nameof(StartFrameButton));
             PreviousFrameButton = root.Q<Button>(nameof(PreviousFrameButton));
             PlayOrStopButton = root.Q<Button>(nameof(PlayOrStopButton));
@@ -501,7 +505,7 @@ namespace MochiFramework.Skill.Editor
             SelectionFrameField = root.Q<IntegerField>(nameof(SelectionFrameField));
             TotalFrameField = root.Q<IntegerField>(nameof(TotalFrameField));
             
-
+            AddTrackButton.clicked += OnClickedAddTrack;
             StartFrameButton.clicked += OnClickedStartFrame;
             PreviousFrameButton.clicked += OnClickedPreviousFrame;
             PlayOrStopButton.clicked += OnClickedPlayOrStop;
@@ -511,7 +515,7 @@ namespace MochiFramework.Skill.Editor
             SelectionFrameField.RegisterValueChangedCallback<int>(OnSelectionFrameFieldChange);
             TotalFrameField.RegisterValueChangedCallback<int>(OnTotalFrameFieldChange);
         }
-
+        
         private void OnTotalFrameFieldChange(ChangeEvent<int> evt)
         {
             if (evt.newValue < 1)
@@ -539,6 +543,28 @@ namespace MochiFramework.Skill.Editor
             }
         }
 
+
+        private void OnClickedAddTrack()
+        {
+            if(SkillConfig == null) return;
+            GenericMenu menu = new GenericMenu();
+            //遍历所有程序集中的Track子类
+            foreach (var type in TypeCache.GetTypesDerivedFrom<Track>())
+            {
+                menu.AddItem(new GUIContent(type.Name), false,
+                    () =>
+                    {
+                        if(skillConfig == null) return;
+                        if (skillConfig.tracks == null)
+                        {
+                            skillConfig.tracks = new List<Track>();
+                        }
+                        skillConfig.tracks.Add(TrackBuilder.Build(type,skillConfig));
+                        UpdateTrack(true);
+                    });
+            }
+            menu.ShowAsContext();
+        }
 
         private void OnClickedEndFrame()
         {
@@ -644,12 +670,12 @@ namespace MochiFramework.Skill.Editor
                 if (this.skillConfig.tracks == null ||this.skillConfig.tracks.Count == 0)
                 {
                     //TODO 修改为更方便的初始化skillConfig方式
-                    AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack(skillConfig);
-                    skillConfig.tracks = new List<Track>();
-                    skillConfig.tracks.Add(animationTrack);
-                    Debug.Log("重新构造动画轨道");
-                    AssetDatabase.SaveAssets();
-                    AssetDatabase.Refresh();
+                    // AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack(skillConfig);
+                    // skillConfig.tracks = new List<Track>();
+                    // skillConfig.tracks.Add(animationTrack);
+                    //Debug.Log("重新构造动画轨道");
+                    // AssetDatabase.SaveAssets();
+                    // AssetDatabase.Refresh();
                 }
 
                 this.skillConfig.onValidateAction += RedrawEditor;

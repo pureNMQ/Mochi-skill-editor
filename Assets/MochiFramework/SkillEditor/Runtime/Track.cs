@@ -13,19 +13,21 @@ namespace MochiFramework.Skill
         public SkillConfig SkillConfig => skillConfig;
         [SerializeReference,HideInInspector] protected SkillConfig skillConfig;
         public abstract string TrackName { get; }
-        public abstract int ClipCount { get; }
+        public int ClipCount => clips?.Count ?? 0;
         
         [SerializeReference] public List<Clip> clips = new List<Clip>();
+
+
+        public abstract void Initialize();
+        public abstract bool CanConvertToClip(object obj);
+        public abstract Clip InsertClipAtFrame(int startFrame, object obj);
+        
+        
         public virtual Clip GetClipAt(int index)
         {
             return clips[index];
         }
         
-        public virtual bool CanConvertToClip(object obj)
-        {
-            return obj is UnityEngine.AnimationClip;
-        }
-
         public virtual bool CanInsertClipAtFrame(int startFrame,int duration, out int correctionDuration,Clip ignoreClip = null)
         {
             correctionDuration = duration;
@@ -63,20 +65,9 @@ namespace MochiFramework.Skill
             
             return true;
         }
-
-        public virtual Clip InsertClipAtFrame(int startFrame, object obj)
-        {
-            if (obj is UnityEngine.AnimationClip animationClip)
-            {
-                return InsertClipAtFrame(startFrame, animationClip);
-            }
-
-            return null;
-        }
-
+        
         public virtual void ResetClipDuration(Clip clip)
         {
-            //TODO 重置Clip的长度为原始长度 如果可以的话
             if (clips.Contains(clip))
             {
                 if (CanInsertClipAtFrame(clip.startFrame, clip.OriginalDuration, out int correctionDuration, clip))
@@ -97,21 +88,7 @@ namespace MochiFramework.Skill
         {
             return clips.GetEnumerator();
         }
-
-        public Clip InsertClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
-        {
-            int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
-            if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
-            {
-                AnimationClip clip = AnimationClip.CreateAnimationClip(this,startFrame, animationClip,correctionDuration); 
-                Debug.Log($"插入一个动画片段{animationClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
-                clips.Add(clip);
-                clips = clips.OrderBy(clip => clip.startFrame).ToList();
-                return clip;
-            }
-
-            return null;
-        }
+        
 
         public virtual bool MoveClipToFrame(Clip clip, int startFrame)
         {
