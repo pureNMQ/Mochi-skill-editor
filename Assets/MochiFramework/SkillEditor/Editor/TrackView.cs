@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -41,6 +42,18 @@ namespace MochiFramework.Skill.Editor
             trackHeadView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(MENU_ASSET_PATH).Instantiate().ElementAt(0);
             trackHeadParent.Add(trackHeadView);
             trackTitle = trackHeadView.Q<Label>();
+            if (string.IsNullOrEmpty(track.TrackName))
+            {
+               CustomTrackAttribute customTrackAttribute = track.GetType().GetCustomAttribute<CustomTrackAttribute>();
+               
+               string defaultName = customTrackAttribute is null
+                   ? track.GetType().Name
+                   : customTrackAttribute.DefaultName;
+               
+               track.TrackName = defaultName;
+               
+            }
+            
             trackTitle.text = track.TrackName;
 
             //TODO 设置trackClipView的长度为SkillConf的最长长度
@@ -62,12 +75,25 @@ namespace MochiFramework.Skill.Editor
             if (evt.button == 1)
             {
                 GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent("置于顶层"),false,BringToFront);
-                menu.AddItem(new GUIContent("上移"), false,MoveUp);
-                menu.AddItem(new GUIContent("下移"), false,MoveDown);
+                menu.AddItem(new GUIContent("排序/置于顶层"),false,BringToFront);
+                menu.AddItem(new GUIContent("排序/上移"), false,MoveUp);
+                menu.AddItem(new GUIContent("排序/下移"), false,MoveDown);
+                menu.AddItem(new GUIContent("重命名"),false, () =>
+                    TextPopupWindow.Open(OnRenameConfirmed,"重命名轨道",track.TrackName,"请输入新的轨道名:")
+                    );
                 menu.AddItem(new GUIContent("删除"), false, Delete);
                 menu.ShowAsContext();
             }
+        }
+
+        private void OnRenameConfirmed(string newName)
+        {
+            Undo.RegisterCompleteObjectUndo(track.SkillConfig,$"Rename Track : {track}");
+            track.TrackName = newName;
+            trackTitle.text = newName;
+            
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
 
@@ -165,7 +191,6 @@ namespace MochiFramework.Skill.Editor
             int index = track.SkillConfig.tracks.IndexOf(track);
             if (index <= 0 || index >= track.SkillConfig.tracks.Count) return;
             AdjustOrder(index - 1);
-            Debug.Log($"调整至{index - 1}");
         }
 
         private void MoveDown()

@@ -12,11 +12,17 @@ namespace MochiFramework.Skill
     {
         public SkillConfig SkillConfig => skillConfig;
         [SerializeReference,HideInInspector] protected SkillConfig skillConfig;
-        public abstract string TrackName { get; }
+
+        public string TrackName
+        {
+            get => _trackName;
+            set => _trackName = value;
+        }
         public int ClipCount => clips?.Count ?? 0;
         
         [SerializeReference] public List<Clip> clips = new List<Clip>();
-
+        
+        private string _trackName;
 
         public abstract void Initialize();
         public abstract bool CanConvertToClip(object obj);

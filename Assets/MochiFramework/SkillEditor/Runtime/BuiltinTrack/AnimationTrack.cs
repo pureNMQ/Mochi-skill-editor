@@ -3,11 +3,9 @@ using System.Linq;
 
 namespace MochiFramework.Skill
 {
-    
+    [CustomTrack(DefaultName = "动画轨道")]
     public sealed class AnimationTrack : Track
     {
-        public override string TrackName => "动画轨道";
-
         public override void Initialize()
         {
             

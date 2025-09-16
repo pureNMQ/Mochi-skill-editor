@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
-    // [SkillEditorClip("#436036")]
     [Serializable]
     public class AnimationClip : Clip
     {
