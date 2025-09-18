@@ -105,12 +105,14 @@ namespace MochiFramework.Skill.Editor
 
         private void OnTrackClipDragExited(DragExitedEvent evt)
         {
-            UnityEngine.Object[] objects = DragAndDrop.objectReferences;
-            if (track.CanConvertToClip(objects[0]))
+            object dragObject = GetDragObject();
+            if(dragObject is null) return;
+            
+            if (track.CanConvertToClip(dragObject))
             {
                 Undo.RegisterCompleteObjectUndo(track.SkillConfig, "Insert Clip");
                 int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
-                track.InsertClipAtFrame(selectFrameIndex, objects[0]);
+                track.InsertClipAtFrame(selectFrameIndex, dragObject);
                 //NOTE 如果不合并当前组就会被立即撤回，原因尚不清楚
                 Undo.IncrementCurrentGroup();
 
@@ -118,16 +120,18 @@ namespace MochiFramework.Skill.Editor
                 AssetDatabase.Refresh();
 
                 //刷新View
-                Redraw();
+                //Redraw();
+                skillEditor.UpdateTrack();
             }
         }
 
         private void OnTrackClipDragUpdate(DragUpdatedEvent evt)
         {
-            UnityEngine.Object[] objects = DragAndDrop.objectReferences;
-
+            object dragObject = GetDragObject();
+            if(dragObject is null) return;
+            
             //如果拖拽的资源可以转换为轨道的片段，则改变鼠标样式为复制
-            if (track.CanConvertToClip(objects[0]))
+            if (track.CanConvertToClip(dragObject))
             {
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
             }
@@ -213,6 +217,21 @@ namespace MochiFramework.Skill.Editor
         private void Redraw(bool isClear = true, object changeObject = null)
         {
             Redraw(this.frameUnitWidth, isClear, changeObject);
+        }
+
+        private object GetDragObject()
+        {
+            object dragObject;
+            if (DragAndDrop.objectReferences is not null && DragAndDrop.objectReferences.Length > 0)
+            {
+                dragObject = DragAndDrop.objectReferences[0];
+            }
+            else
+            {
+                dragObject = DragAndDrop.GetGenericData("skill clip");
+            }
+
+            return dragObject;
         }
 
     }

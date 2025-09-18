@@ -142,6 +142,8 @@ namespace MochiFramework.Skill.Editor
             if (isDrag)
             {
                 isDrag = false;
+                DragAndDrop.SetGenericData("skill clip",clip);
+                DragAndDrop.StartDrag("skill clip");
                 ApplyDrag();
             }
         }

@@ -17,12 +17,20 @@ namespace MochiFramework.Skill
             {
                 return true;
             }
+            else if (obj is AudioClip)
+            {
+                return true;
+            }
             return false;
         }
 
         public override Clip InsertClipAtFrame(int startFrame, object obj)
         {
-            if (obj is UnityEngine.AudioClip audioClip)
+            if (obj is UnityEngine.AudioClip unityAudioClip)
+            {
+                return InsertAudioClipAtFrame(startFrame, unityAudioClip);
+            }
+            else if (obj is AudioClip audioClip)
             {
                 return InsertAudioClipAtFrame(startFrame, audioClip);
             }
@@ -42,6 +50,26 @@ namespace MochiFramework.Skill
                  return clip;
              }
              return null;
+        }
+        
+        private Clip InsertAudioClipAtFrame(int startFrame, AudioClip audioClip)
+        {
+            if (CanInsertClipAtFrame(startFrame, audioClip.duration, out int correctionDuration))
+            {
+                if (correctionDuration != audioClip.duration)
+                {
+                    Debug.LogWarning("轨道空间太少");
+                    return null;
+                }
+                
+                audioClip.Track.RemoveClip(audioClip);
+                audioClip.Track = this;
+                audioClip.startFrame = startFrame;
+                clips.Add(audioClip);
+            }
+            
+            
+            return null;
         }
         
         

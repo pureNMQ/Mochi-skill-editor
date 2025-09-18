@@ -9,8 +9,12 @@ namespace MochiFramework.Skill
     {
         public abstract string ClipName { get; }
         public abstract int OriginalDuration { get; }
-        
-        public Track Track => track;
+
+        public Track Track
+        {
+            get => track;
+            set => track = value;
+        }
         public SkillConfig SkillConfig => track.SkillConfig;
         
 
