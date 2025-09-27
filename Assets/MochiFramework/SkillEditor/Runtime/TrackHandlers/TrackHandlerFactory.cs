@@ -9,6 +9,9 @@
                 case AnimationTrack animationTrack:
                     if(player.Animator == null) return null;
                     return new AnimationTrackHandler(animationTrack, player.Animator);
+                
+                case AudioTrack audioTrack:
+                    return new AudioTrackHandler(audioTrack);
             }
             
             return null;

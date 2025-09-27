@@ -4,7 +4,7 @@ using System.Linq;
 namespace MochiFramework.Skill
 {
     [CustomTrack(DefaultName = "音频轨道")]
-    public class AudioTrick : Track
+    public class AudioTrack : Track
     {
         public override void Initialize()
         {

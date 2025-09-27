@@ -7,5 +7,6 @@ namespace MochiFramework.Skill
     {
         public string HexColor = "#757575";
         public string DefaultName = null;
+        public bool IsUnique = false;
     }
 }
