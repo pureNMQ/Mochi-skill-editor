@@ -27,7 +27,7 @@ namespace MochiFramework.Skill
         public abstract void Initialize();
         public abstract bool CanConvertToClip(object obj);
         public abstract Clip InsertClipAtFrame(int startFrame, object obj);
-        
+        public abstract TrackHandler CreateTrackHandler(GameObject gameObject);
         
         public virtual Clip GetClipAt(int index)
         {

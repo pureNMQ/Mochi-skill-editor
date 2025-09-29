@@ -71,7 +71,10 @@ namespace MochiFramework.Skill
             
             return null;
         }
-        
-        
+
+        public override TrackHandler CreateTrackHandler(GameObject gameObject)
+        {
+            return null;
+        }
     }
 }

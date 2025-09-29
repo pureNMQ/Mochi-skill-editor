@@ -667,17 +667,6 @@ namespace MochiFramework.Skill.Editor
 
             if (skillConfig != null)
             {
-                if (this.skillConfig.tracks == null ||this.skillConfig.tracks.Count == 0)
-                {
-                    //TODO 修改为更方便的初始化skillConfig方式
-                    // AnimationTrack animationTrack = AnimationTrack.CreateAnimationTrack(skillConfig);
-                    // skillConfig.tracks = new List<Track>();
-                    // skillConfig.tracks.Add(animationTrack);
-                    //Debug.Log("重新构造动画轨道");
-                    // AssetDatabase.SaveAssets();
-                    // AssetDatabase.Refresh();
-                }
-
                 this.skillConfig.onValidateAction += RedrawEditor;
                 _skillPreviewPlayer.Rebuild();
             }

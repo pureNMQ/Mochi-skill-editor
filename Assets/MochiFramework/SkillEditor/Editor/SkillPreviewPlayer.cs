@@ -28,8 +28,9 @@ namespace MochiFramework.Skill.Editor
         private double currentTime = 0;
         private double lastTime = 0;
         private double detleTime = 0;
+        private int lastFrame = 0;
         private PreviewPlayerState state = PreviewPlayerState.Stop;
-        private bool IsNotPreview => !skillEditor.IsPreview || skillEditor.SkillConfig == null;
+        private bool IsNotPreview => !skillEditor.IsPreview || skillEditor.SkillConfig == null || skillEditor.PreviewPrefab == null;
 
         private List<TrackHandler> trackHandlers;
         
@@ -93,13 +94,16 @@ namespace MochiFramework.Skill.Editor
             
             lastTime = EditorApplication.timeSinceStartup;
             state = PreviewPlayerState.Play;
-            if (trackHandlers != null)
+            
+            //每次开始播放，重新构建Handler
+            Rebuild();
+            foreach (var handler in trackHandlers)
             {
-                foreach (var handler in trackHandlers) 
-                {
-                    handler.Play(CurrentFrame,(float)currentTime);
-                }
+                handler.Play(CurrentFrame);
             }
+
+            lastFrame = CurrentFrame - 1;
+            
             OnPlay?.Invoke();
         }
         public void Update()
@@ -109,15 +113,16 @@ namespace MochiFramework.Skill.Editor
             
             detleTime = EditorApplication.timeSinceStartup - lastTime;
             currentTime += detleTime;
-            
-            if (trackHandlers != null)
+
+            if (CurrentFrame != lastFrame)
             {
-                foreach (var handler in trackHandlers) 
+                foreach (var handler in trackHandlers)
                 {
-                    handler.Update((float)detleTime,CurrentFrame,(float)currentTime);
+                    handler.Update(CurrentFrame);
                 }
+                lastFrame = CurrentFrame;
             }
-            
+
             lastTime = EditorApplication.timeSinceStartup;
             
             if (CurrentFrame >= skillEditor.SkillConfig.frameCount)
@@ -125,10 +130,26 @@ namespace MochiFramework.Skill.Editor
                 StopCurrentSkill();
             }
         }
+        
+        public void Evaluate(int frame, bool isPause = false)
+        {
+            if (trackHandlers != null)
+            {
+                foreach (var handler in trackHandlers) 
+                {
+                    handler.Evaluate(frame);
+                }
+            }
+            lastFrame = CurrentFrame;
+        }
 
         public void StopCurrentSkill()
         {
             state = PreviewPlayerState.Stop;
+            foreach (var handler in trackHandlers)
+            {
+                handler.Stop();
+            }
             OnStop?.Invoke();
         }
 
@@ -143,6 +164,10 @@ namespace MochiFramework.Skill.Editor
             if (state == PreviewPlayerState.Play)
             {
                 state = PreviewPlayerState.Pause;
+                foreach (var handler in trackHandlers)
+                {
+                    handler.Stop();
+                }
                 OnPause?.Invoke();
             }
             else
@@ -150,18 +175,7 @@ namespace MochiFramework.Skill.Editor
                 PlaySkill(skillEditor.SelectFrame);
             }
         }
-
-        public void Evaluate(int frame)
-        {
-            currentTime = frame * skillEditor.SkillConfig.frameTime;
-            if (trackHandlers != null)
-            {
-                foreach (var handler in trackHandlers) 
-                {
-                    handler.Evaluate(CurrentFrame,(float)currentTime);
-                }
-            }
-        }
+        
         
         public void Rebuild()
         {
@@ -171,12 +185,14 @@ namespace MochiFramework.Skill.Editor
             trackHandlers = new List<TrackHandler>();
             foreach (var track in skillEditor.SkillConfig.tracks)
             {
-                TrackHandler handler = TrackHandlerFactory.Create(track,this);
+                TrackHandler handler = track.CreateTrackHandler(previewObject);
                 if (handler is not null)
                 {
                     trackHandlers.Add(handler);
                 }
             }
+            
+            Debug.Log("构建TrackHandler,总数:" + trackHandlers.Count);
         }
         
         private void DestroyTrackHandlers()

@@ -1,124 +1,100 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Animations;
-using UnityEngine.Playables;
+using Animancer;
 
 namespace MochiFramework.Skill
 {
-    public class AnimationTrackHandler : TrackHandler
+    public sealed class AnimationTrackHandler : TrackHandler
     {
         private AnimationTrack animationTrack;
-        private Animator animator;
-        private int currentClipIndex;
-        private AnimationPlayableOutput playableOutput;
-        private PlayableGraph playableGraph;
-        private AnimationClipPlayable animationClipPlayable;
+        private AnimancerComponent animancer;
         
-        public AnimationTrackHandler(AnimationTrack track,Animator animator) : base(track)
+        public AnimationTrackHandler(AnimationTrack track,GameObject gameObject) : base(track)
         {
             animationTrack = track;
-            this.animator = animator;
-            
-            playableGraph = PlayableGraph.Create();
-            playableOutput = AnimationPlayableOutput.Create(playableGraph, "AnimationTrack", animator);
-            playableGraph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
-            animationClipPlayable = AnimationClipPlayable.Create(playableGraph, null);
-            currentClipIndex = -1;
-            
-            lateFrame = 0;
-            lateTime = 0;
-        }
-
-        public override void Play(int currentFrame = 0, float currentTime = 0)
-        {
-            lateFrame = currentFrame;
-            lateTime = currentTime;
-            //前面几帧可能没有动画
-            currentClipIndex = -1;
-            ChangeAnimationClipIndex(currentFrame);
-        }
-
-        public override void Update(float deltaTime, int currentFrame, float currentTime)
-        {
-            ChangeAnimationClipIndex(currentFrame);
-            playableGraph.Evaluate(deltaTime);
-
-            lateFrame = currentFrame;
-            lateTime = currentTime;
-
-        }
-
-        public override void Evaluate(int currentFrame, float currentTime)
-        {
-            ChangeAnimationClipIndex(currentFrame);
-            if (currentClipIndex >= 0)
+            animancer = gameObject.GetComponentInChildren<AnimancerComponent>();
+            if (animancer == null)
             {
-                animationClipPlayable.SetTime(currentTime - animationTrack.clips[currentClipIndex].StartTime);
+                animancer = gameObject.AddComponent<AnimancerComponent>();
+            }
+
+            if (animancer.Animator == null)
+            {
+                Animator animator = gameObject.GetComponentInChildren<Animator>();
+                if (animator == null)
+                {
+                    animator = gameObject.AddComponent<Animator>();
+                }
+                animancer.Animator = animator;
+            }
+
+            animancer.UpdateMode = AnimatorUpdateMode.Normal;
+            animancer.Graph.PauseGraph();
+        }
+
+        public override void Play(int currentFrame = 0)
+        {
+            animancer.Graph.UnpauseGraph();
+            for (int i = 0; i < track.clips.Count; i++)
+            {
+                if (currentFrame >= track.clips[i].startFrame && currentFrame <= track.clips[i].EndFrame)
+                {
+                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track.clips[i]);
+                    var state = animancer.Play(asset);
+                    state.Time = (currentFrame - track.clips[i].startFrame) * track.SkillConfig.frameTime;
+                    break;
+                }
+            }
+        }
+
+        public override void Update(int currentFrame)
+        {
+            if(animancer == null) return;
+            Debug.Log("当前帧:" + currentFrame);
+            for (int i = 0; i < track.clips.Count; i++)
+            {
+                if (currentFrame == track.clips[i].startFrame)
+                {
+                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track.clips[i]);
+                    animancer.Play(asset,0,FadeMode.FromStart);
+                }
+            }
+        }
+
+        public override void Evaluate(int currentFrame)
+        {
+            if(animancer == null) return;
+            for (int i = 0; i < track.clips.Count; i++)
+            {
+                if (currentFrame >= track.clips[i].startFrame && currentFrame <= track.clips[i].EndFrame)
+                {
+                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track.clips[i]);
+                    var state = animancer.Play(asset);
+                    state.Time = (currentFrame - track.clips[i].startFrame) * track.SkillConfig.frameTime;
+                    animancer.Evaluate();
+                    return;
+                }
             }
             
-            playableGraph.Evaluate();
-            
-            lateFrame = currentFrame;
-            lateTime = currentTime;
         }
 
         public override void Stop()
         {
-            playableGraph.Stop();
-        }
-
-        public override void Dispose()
-        {
-            playableGraph.Destroy();
+            animancer.Graph.PauseGraph();
         }
         
-        private void ChangeAnimationClipIndex(int currentFrame)
+        private UnityEngine.AnimationClip FromClipGetAnimationAsset(Clip clip)
         {
-            //TODO 可能在其他trackHandler中也经常使用，待重构
-            if(lateFrame == currentFrame) return;
+            if (clip is AnimationClip animationClip)
+            {
+                return animationClip.AnimationAsset;
+            }
             
-            bool isRebuild = false;
-            if (lateFrame < currentFrame)
-            {
-                while(currentClipIndex + 1 < animationTrack.ClipCount &&
-                      animationTrack.clips[currentClipIndex + 1].startFrame < currentFrame)
-                {
-                    currentClipIndex++;
-                    isRebuild = true;
-                }
-            }
-            else 
-            {
-                while (currentClipIndex >= 0 && animationTrack.clips[currentClipIndex].startFrame > currentFrame)
-                {
-                    currentClipIndex--;
-                    isRebuild = true;
-                }
-                
-            }
-
-            if (isRebuild)
-            {
-                CreateAnimationClipPlayable();
-            }
+            return null;
         }
-
-        private void CreateAnimationClipPlayable()
-        {
-            if (currentClipIndex < 0)
-            {
-                animationClipPlayable = AnimationClipPlayable.Create(playableGraph,null);
-            }
-            else if (animationTrack.clips[currentClipIndex] is AnimationClip clip)
-            {
-                animationClipPlayable = AnimationClipPlayable.Create(playableGraph,clip.AnimationAsset);
-                animationClipPlayable.SetTime(lateTime - animationTrack.clips[currentClipIndex].StartTime);
-                playableOutput.SetSourcePlayable(animationClipPlayable);
-                playableGraph.Play();
-            }
-            else
-            {
-                Debug.LogWarning("AnimationTrackHandler.Play: AnimationTrack clips is not AnimationClip");
-            }
-        }
+        
+        
     }
+    
 }

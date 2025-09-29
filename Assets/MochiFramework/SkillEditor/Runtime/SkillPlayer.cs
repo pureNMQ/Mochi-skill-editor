@@ -80,7 +80,7 @@ namespace MochiFramework.Skill.Editor
             currentFrame = Convert.ToInt32(currentTime * currentSkill.frameRate);
             foreach (var handler in trackHandlers)
             {
-                handler.Update(Time.deltaTime,currentFrame,currentTime);
+                handler.Update(currentFrame);
                 Debug.Log($"轨道更新:{currentFrame},{currentTime}");
             }
 
@@ -103,7 +103,7 @@ namespace MochiFramework.Skill.Editor
             trackHandlers = new List<TrackHandler>();
             foreach (var track in currentSkill.tracks)
             {
-                TrackHandler handler = TrackHandlerFactory.Create(track,this);
+                TrackHandler handler = track.CreateTrackHandler(gameObject);
                 if (handler is not null)
                 {
                     trackHandlers.Add(handler);
