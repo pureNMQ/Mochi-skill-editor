@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+using UnityEngine;
 
 namespace MochiFramework.Skill.Editor
 {
@@ -45,6 +46,7 @@ namespace MochiFramework.Skill.Editor
                 if (clip.Track.MoveClipToFrame(clip, arg.newValue))
                 {
                     UpdateSkillEditor();
+                    Debug.Log("更新技能编辑器");
                 }
                 else
                 {
@@ -82,6 +84,7 @@ namespace MochiFramework.Skill.Editor
             if (skillEditor != null)
             {
                 skillEditor.UpdateTrack(false,clip);
+                Debug.Log("更新技能编辑器轨道");
             }
         }
     }

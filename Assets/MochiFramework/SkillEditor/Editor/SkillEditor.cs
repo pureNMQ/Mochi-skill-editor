@@ -453,6 +453,7 @@ namespace MochiFramework.Skill.Editor
                 foreach (var tv in trackViews)
                 {
                     tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
+                    Debug.Log("重绘");
                 }
             }
         }
@@ -700,6 +701,7 @@ namespace MochiFramework.Skill.Editor
 
         private void PreviewStop()
         {
+            
             _skillPreviewPlayer.StopCurrentSkill();
         }
         

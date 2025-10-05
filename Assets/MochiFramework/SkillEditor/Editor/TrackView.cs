@@ -141,12 +141,13 @@ namespace MochiFramework.Skill.Editor
 
         public void Redraw(float frameUnitWidth, bool isClear = true, object changeObject = null)
         {
+            Debug.Log(changeObject);
             if (this.frameUnitWidth != frameUnitWidth)
             {
                 this.frameUnitWidth = frameUnitWidth;
                 trackClipView.style.width = skillEditor.SkillConfig.frameCount * frameUnitWidth;
             }
-
+            
 
             if (isClear && (changeObject == null || changeObject == track))
             {
@@ -168,6 +169,15 @@ namespace MochiFramework.Skill.Editor
                     cv.Redraw(frameUnitWidth, null);
                 }
             }
+            else if(changeObject is Clip)
+            {
+                foreach (var cv in clipViews)
+                {
+                    cv.Redraw(frameUnitWidth, changeObject);
+                }
+            }
+            
+            
         }
 
         public void Dispose()

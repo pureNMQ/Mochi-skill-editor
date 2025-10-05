@@ -74,7 +74,7 @@ namespace MochiFramework.Skill
 
         public override TrackHandler CreateTrackHandler(GameObject gameObject)
         {
-            return null;
+            return new AudioTrackHandler(this,gameObject);
         }
     }
 }

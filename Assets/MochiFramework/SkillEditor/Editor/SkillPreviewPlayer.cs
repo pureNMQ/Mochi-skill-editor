@@ -146,9 +146,12 @@ namespace MochiFramework.Skill.Editor
         public void StopCurrentSkill()
         {
             state = PreviewPlayerState.Stop;
-            foreach (var handler in trackHandlers)
+            if (trackHandlers != null)
             {
-                handler.Stop();
+                foreach (var handler in trackHandlers)
+                {
+                    handler.Stop();
+                }
             }
             OnStop?.Invoke();
         }
