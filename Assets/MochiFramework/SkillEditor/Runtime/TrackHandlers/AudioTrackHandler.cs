@@ -56,12 +56,13 @@ namespace MochiFramework.Skill
         private void PlayAudioClip(AudioClip clip)
         {
 #if UNITY_EDITOR
-            if (Application.isEditor)
+            if (!Application.isPlaying)
             {
                 PlayPreviewClip?.Invoke(this, clip.AudioAsset);
             }
             else
             {
+                Debug.Log("运行时播放音频");
                 AudioSource.PlayClipAtPoint(clip.AudioAsset,_transform.position);
             }
 #else

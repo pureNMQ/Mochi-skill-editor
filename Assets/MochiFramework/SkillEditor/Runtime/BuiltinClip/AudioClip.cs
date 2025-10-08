@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
+using System;
 
 namespace MochiFramework.Skill
 {
+    [Serializable]
     public class AudioClip : Clip
     {
         public UnityEngine.AudioClip AudioAsset

@@ -8,7 +8,7 @@ namespace MochiFramework.Skill.Editor
     {
         public SkillConfig CurrentSkill => currentSkill;
         public float CurrentTime => currentTime;
-        public int CurrentFrame { get; }
+        public int CurrentFrame => currentFrame;
         public bool IsPlaying => isPlaying;
         public Animator Animator => animator;
 
@@ -17,6 +17,7 @@ namespace MochiFramework.Skill.Editor
         private float currentTime = 0;
         private int currentFrame = 0;
         private bool isPlaying = false;
+        private int lastFrame = 0;
         private List<TrackHandler> trackHandlers;
         
         private Animator animator;
@@ -33,8 +34,8 @@ namespace MochiFramework.Skill.Editor
         {
             if (currentSkill != null)
             {
+                lastFrame = -1;
                 currentTime = 0;
-                Debug.Log($"开始播放技能:{currentTime}");
                 Rebuild();
 
                 foreach (var handler in trackHandlers)
@@ -78,10 +79,12 @@ namespace MochiFramework.Skill.Editor
             
             currentTime += Time.deltaTime;
             currentFrame = Convert.ToInt32(currentTime * currentSkill.frameRate);
+            if(currentFrame == lastFrame) return;
+            lastFrame = currentFrame;
+            Debug.Log($"轨道更新:{currentFrame},{currentTime}");
             foreach (var handler in trackHandlers)
             {
                 handler.Update(currentFrame);
-                Debug.Log($"轨道更新:{currentFrame},{currentTime}");
             }
 
             if (currentFrame >= currentSkill.frameCount)
@@ -104,6 +107,7 @@ namespace MochiFramework.Skill.Editor
             foreach (var track in currentSkill.tracks)
             {
                 TrackHandler handler = track.CreateTrackHandler(gameObject);
+                Debug.Log(track);
                 if (handler is not null)
                 {
                     trackHandlers.Add(handler);
