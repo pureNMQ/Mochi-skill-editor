@@ -10,7 +10,7 @@ namespace MochiFramework.Skill
         public abstract string ClipName { get; }
         public abstract int OriginalDuration { get; }
 
-        public Track Track
+        public ITrack Track
         {
             get => track;
             set => track = value;
@@ -25,7 +25,7 @@ namespace MochiFramework.Skill
         
         public float StartTime => startFrame * SkillConfig.frameTime;
         
-        [SerializeReference,HideInInspector] protected Track track;
+        [SerializeReference,HideInInspector] protected ITrack track;
         
         /// <summary>
         /// 该字段的起始帧为0

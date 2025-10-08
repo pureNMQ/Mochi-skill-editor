@@ -4,7 +4,7 @@ using System.Linq;
 namespace MochiFramework.Skill
 {
     [CustomTrack(DefaultName = "动画轨道",IsUnique = true)]
-    public sealed class AnimationTrack : Track
+    public sealed class AnimationTrack : Track<AnimationClip>
     {
         public override void Initialize()
         {
@@ -15,7 +15,7 @@ namespace MochiFramework.Skill
         {
             return obj is UnityEngine.AnimationClip;
         }
-        public override Clip InsertClipAtFrame(int startFrame, object obj)
+        public override AnimationClip InsertClipAtFrame(int startFrame, object obj)
         {
             if (obj is UnityEngine.AnimationClip animationClip)
             {
@@ -24,7 +24,7 @@ namespace MochiFramework.Skill
 
             return null;
         }
-        private Clip InsertAnimationClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
+        private AnimationClip InsertAnimationClipAtFrame(int startFrame, UnityEngine.AnimationClip animationClip)
         {
             int duration = Mathf.CeilToInt(animationClip.length * animationClip.frameRate);
             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))

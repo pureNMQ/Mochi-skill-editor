@@ -28,10 +28,10 @@ namespace MochiFramework.Skill.Editor
 
         private float frameUnitWidth;
 
-        private Track track;
+        private ITrack track;
         private SkillEditor skillEditor;
 
-        public TrackView(Track track, VisualElement trackHeadParent, VisualElement trackClipParent,
+        public TrackView(ITrack track, VisualElement trackHeadParent, VisualElement trackClipParent,
             SkillEditor skillEditor)
         {
             this.track = track;
@@ -154,7 +154,7 @@ namespace MochiFramework.Skill.Editor
                 clipViews.Clear();
                 trackClipView.Clear();
                 //生成新的ClipView
-                foreach (var clip in track)
+                foreach(Clip clip in track)
                 {
                     ClipView cv = new ClipView();
                     cv.Init(skillEditor, trackClipView, track, clip, frameUnitWidth);

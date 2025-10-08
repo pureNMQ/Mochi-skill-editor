@@ -12,7 +12,7 @@ namespace MochiFramework.Skill
         //TODO 帧率应该整个项目使用的同一帧率，不需要单独设置
         public int frameRate = 30;
         public int frameCount = 120;
-        [SerializeReference] public List<Track> tracks;
+        [SerializeReference] public List<ITrack> tracks;
         public float totalTime => frameCount * frameTime;
         public float frameTime => 1f / frameRate;
 

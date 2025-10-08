@@ -36,13 +36,13 @@ namespace MochiFramework.Skill
         public override void Play(int currentFrame = 0)
         {
             animancer.Graph.UnpauseGraph();
-            for (int i = 0; i < track.clips.Count; i++)
+            for (int i = 0; i < track.ClipCount; i++)
             {
-                if (currentFrame >= track.clips[i].startFrame && currentFrame <= track.clips[i].EndFrame)
+                if (currentFrame >= track[i].startFrame && currentFrame <= track[i].EndFrame)
                 {
-                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track.clips[i]);
+                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track[i]);
                     var state = animancer.Play(asset);
-                    state.Time = (currentFrame - track.clips[i].startFrame) * track.SkillConfig.frameTime;
+                    state.Time = (currentFrame - track[i].startFrame) * track.SkillConfig.frameTime;
                     break;
                 }
             }
@@ -51,11 +51,11 @@ namespace MochiFramework.Skill
         public override void Update(int currentFrame)
         {
             if(animancer == null) return;
-            for (int i = 0; i < track.clips.Count; i++)
+            for (int i = 0; i < track.ClipCount; i++)
             {
-                if (currentFrame == track.clips[i].startFrame)
+                if (currentFrame == track[i].startFrame)
                 {
-                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track.clips[i]);
+                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track[i]);
                     animancer.Play(asset,0,FadeMode.FromStart);
                 }
             }
@@ -64,13 +64,13 @@ namespace MochiFramework.Skill
         public override void Evaluate(int currentFrame)
         {
             if(animancer == null) return;
-            for (int i = 0; i < track.clips.Count; i++)
+            for (int i = 0; i < track.ClipCount; i++)
             {
-                if (currentFrame >= track.clips[i].startFrame && currentFrame <= track.clips[i].EndFrame)
+                if (currentFrame >= track[i].startFrame && currentFrame <= track[i].EndFrame)
                 {
-                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track.clips[i]);
+                    UnityEngine.AnimationClip asset = FromClipGetAnimationAsset(track[i]);
                     var state = animancer.Play(asset);
-                    state.Time = (currentFrame - track.clips[i].startFrame) * track.SkillConfig.frameTime;
+                    state.Time = (currentFrame - track[i].startFrame) * track.SkillConfig.frameTime;
                     animancer.Evaluate();
                     return;
                 }

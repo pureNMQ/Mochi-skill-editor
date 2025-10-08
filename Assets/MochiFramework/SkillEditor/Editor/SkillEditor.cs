@@ -551,7 +551,7 @@ namespace MochiFramework.Skill.Editor
             if(SkillConfig == null) return;
             GenericMenu menu = new GenericMenu();
             //遍历所有程序集中的Track子类
-            foreach (var type in TypeCache.GetTypesDerivedFrom<Track>())
+            foreach (var type in TypeCache.GetTypesDerivedFrom(typeof(Track<>)))
             {
                 CustomTrackAttribute info = type.GetCustomAttribute<CustomTrackAttribute>() ?? new CustomTrackAttribute();
                 
@@ -579,9 +579,16 @@ namespace MochiFramework.Skill.Editor
                         if(skillConfig == null) return;
                         if (skillConfig.tracks == null)
                         {
-                            skillConfig.tracks = new List<Track>();
+                            skillConfig.tracks = new List<ITrack>();
                         }
-                        skillConfig.tracks.Add(TrackBuilder.Build(type,skillConfig));
+
+                        ITrack newTrack = TrackBuilder.Build(type, skillConfig);
+                        if (newTrack == null)
+                        {
+                            Debug.LogError($"创建轨道失败{type},{skillConfig}");
+                            return;
+                        }
+                        skillConfig.tracks.Add(newTrack);
                         UpdateTrack(true);
                     });
             }

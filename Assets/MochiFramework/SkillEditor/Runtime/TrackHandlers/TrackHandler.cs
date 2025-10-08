@@ -6,9 +6,9 @@ namespace MochiFramework.Skill
     public abstract class TrackHandler : IDisposable 
     {
         protected int lateFrame = 0;
-        protected Track track;
+        protected ITrack track;
         
-        public TrackHandler(Track track)
+        public TrackHandler(ITrack track)
         {
             this.track = track;
         }

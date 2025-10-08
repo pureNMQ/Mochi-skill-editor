@@ -15,7 +15,7 @@ namespace MochiFramework.Skill
         private GameObject _gameObject;
         private Transform _transform;
         
-        public AudioTrackHandler(Track track,GameObject gameObject) : base(track)
+        public AudioTrackHandler(ITrack track,GameObject gameObject) : base(track)
         {
             _gameObject = gameObject;
             _transform = gameObject.transform;
@@ -30,7 +30,7 @@ namespace MochiFramework.Skill
         {
             for (int i = 0; i < track.ClipCount; i++)
             {
-                if (track.clips[i].startFrame == currentFrame && track.clips[i] is AudioClip audioClip)
+                if (track[i].startFrame == currentFrame && track[i] is AudioClip audioClip)
                 {
                     PlayAudioClip(audioClip);
                 }

@@ -8,7 +8,7 @@ namespace MochiFramework.Skill.Editor
     public sealed class ClipView
     {
         private const string CLIP_VIEW_ASSET_PATH = "Assets/MochiFramework/SkillEditor/Editor/ClipView.uxml";
-        private Track track;
+        private ITrack track;
         private Clip clip;
         private CustomClipAttribute clipTypeInfo;
         
@@ -27,7 +27,7 @@ namespace MochiFramework.Skill.Editor
         //拖拽时最后一个有效帧
         private int lastValidFrame = -1;
         
-        public void Init(SkillEditor skillEditor,VisualElement parent,Track track,Clip clip,float frameUnitWidth)
+        public void Init(SkillEditor skillEditor,VisualElement parent,ITrack track,Clip clip,float frameUnitWidth)
         {
             //初始化成员变量
             this.skillEditor = skillEditor;

@@ -17,7 +17,7 @@ namespace MochiFramework.Skill
 
         [SerializeField] protected UnityEngine.AnimationClip animationAsset;
 
-        public static AnimationClip CreateAnimationClip(Track track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
+        public static AnimationClip CreateAnimationClip(AnimationTrack track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
         {
             AnimationClip clip = new AnimationClip();
             clip.track = track;

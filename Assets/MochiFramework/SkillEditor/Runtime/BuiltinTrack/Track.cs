@@ -6,9 +6,26 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
-    //TODO 应该继承ScriptableObject,以便持久化存储
+    public interface ITrack
+    {
+        public SkillConfig SkillConfig { get; }
+        public string TrackName { get; set; }
+        public int ClipCount { get; }
+        public void Initialize();
+        public bool CanConvertToClip(object obj);
+        public void ResetClipDuration(Clip clip);
+        public  bool CanInsertClipAtFrame(int startFrame, int duration, out int correctionDuration,
+            Clip ignoreClip = null);
+        public Clip InsertClipAtFrame(int startFrame, object obj);
+        public bool MoveClipToFrame(Clip clip, int startFrame);
+        public void RemoveClip(Clip clip);
+        public TrackHandler CreateTrackHandler(GameObject gameObject);
+        public Clip this[int index]{ get; }
+        public IEnumerator<Clip> GetEnumerator();
+    }
+    
     [Serializable]
-    public abstract class Track : IEnumerable<Clip> 
+    public abstract class Track<TClip> : ITrack where TClip : Clip
     {
         public SkillConfig SkillConfig => skillConfig;
         [SerializeReference,HideInInspector] protected SkillConfig skillConfig;
@@ -20,20 +37,19 @@ namespace MochiFramework.Skill
         }
         public int ClipCount => clips?.Count ?? 0;
         
-        [SerializeReference] public List<Clip> clips = new List<Clip>();
+        [SerializeReference] public List<TClip> clips = new List<TClip>();
         
         private string _trackName;
 
         public abstract void Initialize();
         public abstract bool CanConvertToClip(object obj);
-        public abstract Clip InsertClipAtFrame(int startFrame, object obj);
+        public abstract TClip InsertClipAtFrame(int startFrame, object obj);
         public abstract TrackHandler CreateTrackHandler(GameObject gameObject);
         
-        public virtual Clip GetClipAt(int index)
-        {
-            return clips[index];
-        }
+        public TClip this[int index] => clips[index];
         
+        
+        //TODO 插入Clip的逻辑需要修改
         public virtual bool CanInsertClipAtFrame(int startFrame,int duration, out int correctionDuration,Clip ignoreClip = null)
         {
             correctionDuration = duration;
@@ -72,7 +88,7 @@ namespace MochiFramework.Skill
             return true;
         }
         
-        public virtual void ResetClipDuration(Clip clip)
+        public void ResetClipDuration(Clip clip)
         {
             if (clips.Contains(clip))
             {
@@ -89,14 +105,15 @@ namespace MochiFramework.Skill
                 }
             }
         }
+        
 
-        public virtual IEnumerator<Clip> GetEnumerator()
+        public virtual IEnumerator<TClip> GetEnumerator()
         {
             return clips.GetEnumerator();
         }
         
 
-        public virtual bool MoveClipToFrame(Clip clip, int startFrame)
+        public virtual bool MoveClipToFrame(TClip clip, int startFrame)
         {
             //类型验证，权限范围验证
             if (!clips.Contains(clip)) return false;
@@ -112,16 +129,39 @@ namespace MochiFramework.Skill
             return true;
         }
 
-        public virtual Clip RemoveClip(Clip clip)
+        public virtual void RemoveClip(TClip clip)
         {
             clips.Remove(clip);
-            return clip;    
         }
         
-
-        IEnumerator IEnumerable.GetEnumerator()
+        //显式接口
+        Clip ITrack.this[int index] => this[index];
+        IEnumerator<Clip> ITrack.GetEnumerator()
         {
             return GetEnumerator();
         }
+        Clip ITrack.InsertClipAtFrame(int startFrame, object obj)
+        {
+            return InsertClipAtFrame(startFrame,obj);
+        }
+
+        bool ITrack.MoveClipToFrame(Clip clip, int startFrame)
+        {
+            if (clip is TClip)
+            {
+                return MoveClipToFrame(clip as TClip, startFrame);
+            }
+
+            return false;
+        }
+
+        void ITrack.RemoveClip(Clip clip)
+        {
+            if (clip is TClip)
+            {
+                RemoveClip(clip as TClip);
+            }
+        }
+
     }
 }

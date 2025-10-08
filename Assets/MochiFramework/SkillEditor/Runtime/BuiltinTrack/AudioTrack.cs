@@ -4,7 +4,7 @@ using System.Linq;
 namespace MochiFramework.Skill
 {
     [CustomTrack(DefaultName = "音频轨道")]
-    public class AudioTrack : Track
+    public class AudioTrack : Track<AudioClip>
     {
         public override void Initialize()
         {
@@ -24,7 +24,7 @@ namespace MochiFramework.Skill
             return false;
         }
 
-        public override Clip InsertClipAtFrame(int startFrame, object obj)
+        public override AudioClip InsertClipAtFrame(int startFrame, object obj)
         {
             if (obj is UnityEngine.AudioClip unityAudioClip)
             {
@@ -38,7 +38,7 @@ namespace MochiFramework.Skill
             return null;
         }
 
-        private Clip InsertAudioClipAtFrame(int startFrame, UnityEngine.AudioClip unityAudioClip)
+        private AudioClip InsertAudioClipAtFrame(int startFrame, UnityEngine.AudioClip unityAudioClip)
         {
              int duration = Mathf.CeilToInt(unityAudioClip.length * skillConfig.frameRate);
              if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
@@ -52,7 +52,7 @@ namespace MochiFramework.Skill
              return null;
         }
         
-        private Clip InsertAudioClipAtFrame(int startFrame, AudioClip audioClip)
+        private AudioClip InsertAudioClipAtFrame(int startFrame, AudioClip audioClip)
         {
             if (CanInsertClipAtFrame(startFrame, audioClip.duration, out int correctionDuration))
             {
