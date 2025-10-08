@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,120 +8,241 @@ using Object = UnityEngine.Object;
 
 namespace MochiFramework.Skill.Editor
 {
-    public class TrackView : IDisposable
+    public sealed class TrackView : IDisposable
     {
         private const string MENU_ASSET_PATH = "Assets/MochiFramework/SkillEditor/Editor/TrackMenuView.uxml";
         private const string TRACK_CLIP_ASSET_PATH = "Assets/MochiFramework/SkillEditor/Editor/ClipTrackView.uxml";
 
-        private VisualElement trackMenuParent;
+        private VisualElement trackHeadParent;
         private VisualElement trackClipParent;
 
         //位于编辑器左侧，显示轨道的总览信息
-        private VisualElement trackMenuView;
+        private VisualElement trackHeadView;
+
         //位于编辑器右侧，显示轨道中的片段
         private VisualElement trackClipView;
 
         private Label trackTitle;
-        
+
         private List<ClipView> clipViews;
 
         private float frameUnitWidth;
 
-        private Track track;
+        private ITrack track;
         private SkillEditor skillEditor;
 
-        public TrackView(Track track, VisualElement trackMenuParent, VisualElement trackClipParent, SkillEditor skillEditor)
+        public TrackView(ITrack track, VisualElement trackHeadParent, VisualElement trackClipParent,
+            SkillEditor skillEditor)
         {
             this.track = track;
             this.skillEditor = skillEditor;
 
-            this.trackMenuParent = trackMenuParent;
+            this.trackHeadParent = trackHeadParent;
             this.trackClipParent = trackClipParent;
-            trackMenuView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(MENU_ASSET_PATH).Instantiate().ElementAt(0);
-            trackMenuParent.Add(trackMenuView);
-            trackTitle = trackMenuView.Q<Label>();
+            trackHeadView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(MENU_ASSET_PATH).Instantiate().ElementAt(0);
+            trackHeadParent.Add(trackHeadView);
+            trackTitle = trackHeadView.Q<Label>();
+            if (string.IsNullOrEmpty(track.TrackName))
+            {
+               CustomTrackAttribute customTrackAttribute = track.GetType().GetCustomAttribute<CustomTrackAttribute>();
+               
+               string defaultName = customTrackAttribute is null
+                   ? track.GetType().Name
+                   : customTrackAttribute.DefaultName;
+               
+               track.TrackName = defaultName;
+               
+            }
+            
             trackTitle.text = track.TrackName;
 
             //TODO 设置trackClipView的长度为SkillConf的最长长度
-            trackClipView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate().ElementAt(0);
+            trackClipView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate()
+                .ElementAt(0);
+            trackClipView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
             trackClipParent.Add(trackClipView);
 
             clipViews = new List<ClipView>();
-            
-            trackClipView.RegisterCallback<DragUpdatedEvent>(OnDragUpdate);
-            trackClipView.RegisterCallback<DragExitedEvent>(OnDragExited);
-            trackMenuView.RegisterCallback<FocusEvent>(OnFocus);
+
+            trackClipView.RegisterCallback<DragUpdatedEvent>(OnTrackClipDragUpdate);
+            trackClipView.RegisterCallback<DragExitedEvent>(OnTrackClipDragExited);
+            trackHeadView.RegisterCallback<FocusEvent>(OnTrackHeadFocus);
+            trackHeadView.RegisterCallback<MouseDownEvent>(OnTrackHeadMouseDown);
         }
 
-        private void OnFocus(FocusEvent evt)
+        private void OnTrackHeadMouseDown(MouseDownEvent evt)
         {
-            Selection.activeObject = track;
-        }
-
-        public void Update()
-        {
-            //清空ClipViews
-            clipViews.Clear();
-            trackClipView.Clear();
-            
-            trackClipView.style.width = skillEditor.SkillConfig.FrameCount * frameUnitWidth;
-            //生成新的ClipView
-            foreach (var clip in track)
+            if (evt.button == 1)
             {
-                ClipView cv = new ClipView();
-                cv.Init(skillEditor,trackClipView,track,clip,frameUnitWidth);
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("排序/置于顶层"),false,BringToFront);
+                menu.AddItem(new GUIContent("排序/上移"), false,MoveUp);
+                menu.AddItem(new GUIContent("排序/下移"), false,MoveDown);
+                menu.AddItem(new GUIContent("重命名"),false, () =>
+                    TextPopupWindow.Open(OnRenameConfirmed,"重命名轨道",track.TrackName,"请输入新的轨道名:")
+                    );
+                menu.AddItem(new GUIContent("删除"), false, Delete);
+                menu.ShowAsContext();
             }
         }
-        
-        public void Update(float frameUnitWidth)
+
+        private void OnRenameConfirmed(string newName)
         {
-            this.frameUnitWidth = frameUnitWidth;
-            Update();
+            Undo.RegisterCompleteObjectUndo(track.SkillConfig,$"Rename Track : {track}");
+            track.TrackName = newName;
+            trackTitle.text = newName;
+            
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
-        public void Dispose()
+
+        private void OnTrackHeadFocus(FocusEvent evt)
         {
-            trackMenuParent.Remove(trackMenuView);
-            trackClipParent.Remove(trackClipView);
+            skillEditor.ShowObjectOnInspector(track);
+            Undo.RegisterFullObjectHierarchyUndo(track.SkillConfig, "Insert Clip");
         }
 
-        private void OnDragExited(DragExitedEvent evt)
+        private void OnTrackClipDragExited(DragExitedEvent evt)
         {
-            UnityEngine.Object[] objects = DragAndDrop.objectReferences;
-
-            if (track.CanConvertToClip(objects[0]))
+            object dragObject = GetDragObject();
+            Debug.Log(dragObject);
+            if(dragObject is null) return;
+            
+            if (track.CanConvertToClip(dragObject))
             {
-                //BUG 只能撤回，不能重做
-                //可能是重做的过程中新建了一个Clip对象，而Track引用的还是旧的Clip对象，导致引用错误
-                Undo.RegisterCompleteObjectUndo(track,"Insert Clip");
+                Undo.RegisterCompleteObjectUndo(track.SkillConfig, "Insert Clip");
                 int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
-                Clip newClip = track.InsertClipAtFrame(selectFrameIndex, objects[0]);
-                
-                //保存数据
-                AssetDatabase.AddObjectToAsset(newClip,track);
-                
-                //使用Undo.RegisterCompleteObjectUndo可以避免无法重做的bug，但是撤回的时候该对象不会被销毁
-                Undo.RegisterCreatedObjectUndo(newClip,"Insert Clip");
+                track.InsertClipAtFrame(selectFrameIndex, dragObject);
+                //NOTE 如果不合并当前组就会被立即撤回，原因尚不清楚
                 Undo.IncrementCurrentGroup();
-                
+
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                
+
                 //刷新View
-                Update();
+                //Redraw();
+                skillEditor.UpdateTrack();
             }
         }
 
-        private void OnDragUpdate(DragUpdatedEvent evt)
+        private void OnTrackClipDragUpdate(DragUpdatedEvent evt)
         {
-            UnityEngine.Object[] objects = DragAndDrop.objectReferences;
+            object dragObject = GetDragObject();
+            if(dragObject is null) return;
             
             //如果拖拽的资源可以转换为轨道的片段，则改变鼠标样式为复制
-            if (track.CanConvertToClip(objects[0]))
+            if (track.CanConvertToClip(dragObject))
             {
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
             }
 
         }
+
+
+        public void Redraw(float frameUnitWidth, bool isClear = true, object changeObject = null)
+        {
+            if (this.frameUnitWidth != frameUnitWidth)
+            {
+                this.frameUnitWidth = frameUnitWidth;
+                trackClipView.style.width = skillEditor.SkillConfig.frameCount * frameUnitWidth;
+            }
+            
+
+            if (isClear && (changeObject == null || changeObject == track))
+            {
+                clipViews.Clear();
+                trackClipView.Clear();
+                //生成新的ClipView
+                foreach(Clip clip in track)
+                {
+                    ClipView cv = new ClipView();
+                    cv.Init(skillEditor, trackClipView, track, clip, frameUnitWidth);
+                    clipViews.Add(cv);
+                }
+            }
+            else if (!isClear && (changeObject == null || changeObject == track))
+            {
+                trackClipView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
+                foreach (var cv in clipViews)
+                {
+                    cv.Redraw(frameUnitWidth, null);
+                }
+            }
+            else if(changeObject is Clip)
+            {
+                foreach (var cv in clipViews)
+                {
+                    cv.Redraw(frameUnitWidth, changeObject);
+                }
+            }
+            
+            
+        }
+
+        public void Dispose()
+        {
+            trackHeadParent.Remove(trackHeadView);
+            trackClipParent.Remove(trackClipView);
+        }
+
+        private void Delete()
+        {
+            Undo.RegisterCompleteObjectUndo(track.SkillConfig,$"Delete Track : {track}");
+            track.SkillConfig.tracks.Remove(track);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            skillEditor.UpdateTrack();
+        }
+
+        private void BringToFront()
+        {
+            AdjustOrder(0);
+        }
+
+        private void MoveUp()
+        {
+            int index = track.SkillConfig.tracks.IndexOf(track);
+            if (index <= 0 || index >= track.SkillConfig.tracks.Count) return;
+            AdjustOrder(index - 1);
+        }
+
+        private void MoveDown()
+        {
+            int index = track.SkillConfig.tracks.IndexOf(track);
+            if (index < 0 || index >= track.SkillConfig.tracks.Count - 1) return;
+            AdjustOrder(index + 1);
+        }
+        
+        private void AdjustOrder(int index)
+        {
+            Undo.RegisterCompleteObjectUndo(track.SkillConfig,$"Track Adjust Order : {track}");
+            track.SkillConfig.tracks.Remove(track);
+            track.SkillConfig.tracks.Insert(index,track);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            skillEditor.UpdateTrack();
+        }
+
+        private void Redraw(bool isClear = true, object changeObject = null)
+        {
+            Redraw(this.frameUnitWidth, isClear, changeObject);
+        }
+
+        private object GetDragObject()
+        {
+            object dragObject;
+            if (DragAndDrop.objectReferences is not null && DragAndDrop.objectReferences.Length > 0)
+            {
+                dragObject = DragAndDrop.objectReferences[0];
+            }
+            else
+            {
+                dragObject = DragAndDrop.GetGenericData("skill clip");
+            }
+
+            return dragObject;
+        }
+
     }
 }

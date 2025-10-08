@@ -1,7 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MochiFramework.Skill
 {
@@ -9,26 +9,19 @@ namespace MochiFramework.Skill
     public class SkillConfig : ScriptableObject
     {
         public string SkillName;
-        public int FrameCount;
+        //TODO 帧率应该整个项目使用的同一帧率，不需要单独设置
         public int frameRate = 30;
-        public float frameTime = 1.0f / 30.0f;
-        public float totalTime => FrameCount * frameTime;
-        public List<Track> tracks;
+        public int frameCount = 120;
+        [SerializeReference] public List<ITrack> tracks;
+        public float totalTime => frameCount * frameTime;
+        public float frameTime => 1f / frameRate;
 
-        public void PreviewUpdate(float currentTime, int currentFrame, GameObject previewObject,bool isPlaying)
+#if UNITY_EDITOR
+        public Action onValidateAction;
+        private void OnValidate()
         {
-            foreach (var track in tracks)
-            {
-                track.PreviewUpdate(currentTime,currentFrame,previewObject,isPlaying);
-            }
-        }
-
-        public void PreviewStop(GameObject previewObject)
-        {
-            foreach (var track in tracks)
-            {
-                track.PreviewStop(previewObject);
-            }
-        }
+            onValidateAction?.Invoke();
+        }  
+#endif
     }
 }
