@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
+using System.Reflection;
 using MochiFramework.Skill.MochiFramework.SkillEditor.Editor;
 
 namespace MochiFramework.Skill.Editor
@@ -552,7 +553,27 @@ namespace MochiFramework.Skill.Editor
             //遍历所有程序集中的Track子类
             foreach (var type in TypeCache.GetTypesDerivedFrom<Track>())
             {
-                menu.AddItem(new GUIContent(type.Name), false,
+                CustomTrackAttribute info = type.GetCustomAttribute<CustomTrackAttribute>() ?? new CustomTrackAttribute();
+                
+                string name = string.IsNullOrEmpty(info.DefaultName) ? type.Name : info.DefaultName;
+                
+                //如果是唯一轨道,检查当前技能,如果已经存在,则跳过
+                if (info.IsUnique)
+                {
+                    bool isExist = false;
+                    foreach (var track in skillConfig.tracks)
+                    {
+                        if (track.GetType() == type)
+                        {
+                            isExist = true;
+                            break;
+                        }
+                    }
+                    if (isExist) continue;
+                }
+            
+                //添加到菜单
+                menu.AddItem(new GUIContent(name), false,
                     () =>
                     {
                         if(skillConfig == null) return;

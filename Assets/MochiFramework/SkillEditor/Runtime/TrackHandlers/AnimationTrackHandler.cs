@@ -51,7 +51,6 @@ namespace MochiFramework.Skill
         public override void Update(int currentFrame)
         {
             if(animancer == null) return;
-            Debug.Log("当前帧:" + currentFrame);
             for (int i = 0; i < track.clips.Count; i++)
             {
                 if (currentFrame == track.clips[i].startFrame)

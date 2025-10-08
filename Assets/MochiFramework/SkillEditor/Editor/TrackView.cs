@@ -106,6 +106,7 @@ namespace MochiFramework.Skill.Editor
         private void OnTrackClipDragExited(DragExitedEvent evt)
         {
             object dragObject = GetDragObject();
+            Debug.Log(dragObject);
             if(dragObject is null) return;
             
             if (track.CanConvertToClip(dragObject))
@@ -141,7 +142,6 @@ namespace MochiFramework.Skill.Editor
 
         public void Redraw(float frameUnitWidth, bool isClear = true, object changeObject = null)
         {
-            Debug.Log(changeObject);
             if (this.frameUnitWidth != frameUnitWidth)
             {
                 this.frameUnitWidth = frameUnitWidth;

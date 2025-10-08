@@ -1,0 +1,19 @@
+{
+    "name": "MochiFramewrok.Skill.Editor",
+    "rootNamespace": "MochiFramewrok.Skill.Editor",
+    "references": [
+        "GUID:5150ab5ea53c8224a88c75a5491212c8",
+        "GUID:f03ecf483ff43ef4b96c4279d055e799"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

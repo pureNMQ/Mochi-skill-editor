@@ -1,5 +1,4 @@
 ﻿using System;
-using PlasticGui.Configuration.CloudEdition.Welcome;
 using UnityEngine;
 
 namespace MochiFramework.Skill
