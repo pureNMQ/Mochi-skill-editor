@@ -5,6 +5,7 @@ using UnityEditor.UIElements;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEditor.Callbacks;
 
 namespace MochiFramework.Skill.Editor
 {
@@ -440,7 +441,7 @@ namespace MochiFramework.Skill.Editor
             if (isClear || skillConfig is null)
             {
                 ClearTrack();
-                if (skillConfig == null) return;
+                if (skillConfig == null || skillConfig.tracks == null) return;
                 foreach (var track in skillConfig.tracks)
                 {
                     TrackView tv = new TrackView(track, TrackMenuContainer, TrackContainer, this);
@@ -557,7 +558,7 @@ namespace MochiFramework.Skill.Editor
                 string name = string.IsNullOrEmpty(info.DefaultName) ? type.Name : info.DefaultName;
                 
                 //如果是唯一轨道,检查当前技能,如果已经存在,则跳过
-                if (info.IsUnique)
+                if (info.IsUnique && skillConfig.tracks != null)
                 {
                     bool isExist = false;
                     foreach (var track in skillConfig.tracks)
@@ -639,6 +640,19 @@ namespace MochiFramework.Skill.Editor
         private SkillConfig skillConfig;
         private SkillEditorConfig skillEditorConfig;
 
+        [OnOpenAssetAttribute(1)]
+        private static bool OpenSkillAsset(int instanceID)
+        {
+            Object obj = EditorUtility.InstanceIDToObject(instanceID);
+            if (obj is SkillConfig skill)
+            {
+                SkillEditor skillEditor = GetWindow<SkillEditor>();
+                skillEditor.SetSkillConfig(skill);
+                return true;
+            }
+
+            return false;
+        }
         public int SelectFrame
         {
             get => skillEditorConfig.selectFrame;
