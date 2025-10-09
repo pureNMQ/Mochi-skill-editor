@@ -80,6 +80,8 @@ namespace MochiFramework.Skill.Editor
         private ObjectField PreviewPrefabField;
         private ObjectField SkillConfigField;
 
+        private Button NewSkillConfigButton;
+
         private void InitTopMenu()
         {
             PreviewSceneButton = root.Q<Button>(nameof(PreviewSceneButton));
@@ -87,16 +89,30 @@ namespace MochiFramework.Skill.Editor
             SkillInfoButton = root.Q<Button>(nameof(SkillInfoButton));
             PreviewPrefabField = root.Q<ObjectField>(nameof(PreviewPrefabField));
             SkillConfigField = root.Q<ObjectField>(nameof(SkillConfigField));
+            NewSkillConfigButton = root.Q<Button>(nameof(NewSkillConfigButton));
 
             PreviewSceneButton.clicked += OnClickPreviewSceneButton;
             GameSceneButton.clicked += OnClickGameSceneButton;
             SkillInfoButton.clicked += OnClickSkillInfoButton;
-
+            NewSkillConfigButton.clicked += OnClickNewSkillConfig;
+            
             PreviewPrefabField.objectType = typeof(GameObject);
             PreviewPrefabField.RegisterValueChangedCallback(OnPreviewPrefabValueChanged);
 
             SkillConfigField.objectType = typeof(SkillConfig);
             SkillConfigField.RegisterValueChangedCallback(OnSkillConfigValueChanged);
+        }
+
+        private void OnClickNewSkillConfig()
+        {
+            //选择新技能配置的目录和文件名
+            string path = EditorUtility.SaveFilePanelInProject("New Skill Config", "NewSkillConfig", "asset", "Save Skill Config");
+            if (string.IsNullOrEmpty(path)) return;
+            path = path.Replace(Application.dataPath, "Assets");
+            SkillConfig config = ScriptableObject.CreateInstance<SkillConfig>();
+            AssetDatabase.CreateAsset(config, path);
+            AssetDatabase.SaveAssets();
+            SetSkillConfig(config);
         }
 
         //切换至预览场景
