@@ -5,7 +5,6 @@ using UnityEditor.UIElements;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
 using System.Reflection;
-using MochiFramework.Skill.MochiFramework.SkillEditor.Editor;
 
 namespace MochiFramework.Skill.Editor
 {
@@ -46,7 +45,7 @@ namespace MochiFramework.Skill.Editor
             InitController();
 
             Undo.undoRedoEvent += OnUndoRedo;
-            skillConfig = null;
+            //skillConfig = null;
             CreateSkillPreviewPlayer();
             _skillPreviewPlayer.ShowPreviewCharacter();
         }

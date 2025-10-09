@@ -39,7 +39,7 @@ namespace MochiFramework.Skill
 
         public override void Evaluate(int currentFrame)
         {
-            
+            //NOTE 由于音频的特殊性，不需要按帧预览
         }
 
         public override void Stop()

@@ -18,7 +18,11 @@ namespace MochiFramework.Skill.Editor
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            skillEditor = SkillEditor.GetWindow<SkillEditor>();
+            if (SkillEditor.HasOpenInstances<SkillEditor>())
+            {
+                skillEditor = SkillEditor.GetWindow<SkillEditor>();
+            }
+
             clip = property.boxedValue as Clip;
             this.property = property;
             root = new VisualElement();
@@ -83,8 +87,8 @@ namespace MochiFramework.Skill.Editor
         {
             if (skillEditor != null)
             {
-                skillEditor.UpdateTrack(false,clip);
                 Debug.Log("更新技能编辑器轨道");
+                skillEditor.UpdateTrack(false,clip);
             }
         }
     }

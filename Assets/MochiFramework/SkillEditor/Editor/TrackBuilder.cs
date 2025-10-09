@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace MochiFramework.Skill.MochiFramework.SkillEditor.Editor
+namespace MochiFramework.Skill.Editor
 {
     public static class TrackBuilder
     {
@@ -11,7 +11,6 @@ namespace MochiFramework.Skill.MochiFramework.SkillEditor.Editor
             if(skillConfig == null) return null;
             if (type == null) return null;
             if (!(typeof(ITrack).IsAssignableFrom(type))) return null;
-            Debug.Log("通过类型检查");
             //创建对应类型的Track
             ITrack track =  (ITrack)Activator.CreateInstance(type);
             //注入skillConfig
