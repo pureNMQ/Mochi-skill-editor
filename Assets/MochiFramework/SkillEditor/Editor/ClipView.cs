@@ -107,12 +107,10 @@ namespace MochiFramework.Skill.Editor
                 }
 
                 //判断是否可以移动到该为止
-                if (track.CanInsertClipAtFrame(frame, clip.duration, out int correctionDuration, clip))
+                int correctionDuration = track.CalculateCorrectionDuration(frame, clip.duration, clip);
+                if (clip.duration == correctionDuration)
                 {
-                    if (clip.duration == correctionDuration)
-                    {
-                        lastValidFrame = frame;
-                    }
+                    lastValidFrame = frame;
                 }
                 
                 SetViewPosition(frame);

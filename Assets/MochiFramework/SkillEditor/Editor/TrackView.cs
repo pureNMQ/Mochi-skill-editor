@@ -113,7 +113,7 @@ namespace MochiFramework.Skill.Editor
             {
                 Undo.RegisterCompleteObjectUndo(track.SkillConfig, "Insert Clip");
                 int selectFrameIndex = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
-                track.InsertClipAtFrame(selectFrameIndex, dragObject);
+                track.InsertObjectAtFrame(selectFrameIndex, dragObject);
                 //NOTE 如果不合并当前组就会被立即撤回，原因尚不清楚
                 Undo.IncrementCurrentGroup();
 

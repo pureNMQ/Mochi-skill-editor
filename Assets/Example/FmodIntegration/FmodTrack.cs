@@ -32,11 +32,16 @@ namespace MochiFramework.Skill
             return ConvertCondition?.Invoke(obj) ?? false;
         }
 
-        public override FmodClip InsertClipAtFrame(int startFrame, object obj)
+        public override FmodClip ConvertToClip(object obj)
         {
-            //TODO 实现Fmod Clip插入功能
             return null;
         }
+
+        // public override FmodClip InsertClipAtFrame(int startFrame, object obj)
+        // {
+        //     //TODO 实现Fmod Clip插入功能
+        //     return null;
+        // }
 
         public override TrackHandler CreateTrackHandler(GameObject gameObject)
         {

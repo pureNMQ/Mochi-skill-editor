@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
-    //TODO 应该继承ScriptableObject,以便持久化存储
     [Serializable]
     public abstract class Clip
     {

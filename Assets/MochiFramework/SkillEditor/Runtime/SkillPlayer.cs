@@ -6,6 +6,7 @@ namespace MochiFramework.Skill.Editor
 {
     public class SkillPlayer : MonoBehaviour,ISkillPlayer
     {
+        public SlotEntry SlotEntry;
         public SkillConfig CurrentSkill => currentSkill;
         public float CurrentTime => currentTime;
         public int CurrentFrame => currentFrame;
