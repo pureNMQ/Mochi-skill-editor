@@ -110,7 +110,7 @@ namespace MochiFramework.Skill
             if (!clips.Contains(clip)) return false;
             
             //判断插入时长度是否被修正，如果被修正则不可以移动
-            int correctionDuration = CalculateCorrectionDuration(startFrame, clip.OriginalDuration, clip);
+            int correctionDuration = CalculateCorrectionDuration(startFrame, clip.duration, clip);
             if (clip.duration != correctionDuration) return false;
             
             clip.startFrame = startFrame;

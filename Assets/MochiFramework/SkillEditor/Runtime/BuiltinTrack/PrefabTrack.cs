@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace MochiFramework.Skill
 {
+    [CustomTrack(DefaultName = "预制体轨道")]
     public class PrefabTrack : Track<PrefabClip>
     {
         public override void Initialize()
@@ -13,17 +14,24 @@ namespace MochiFramework.Skill
 
         public override bool CanConvertToClip(object obj)
         {
-            return obj is GameObject;
+            return obj is GameObject || obj is PrefabClip;
         }
 
         public override PrefabClip ConvertToClip(object obj)
         {
-            return null;
-        }
+            PrefabClip clip = null;
+            if (obj is GameObject go)
+            {
+                clip = new PrefabClip();
+                clip.Prefab = go;
+                clip.duration = clip.OriginalDuration;
+            }
+            else if(obj is PrefabClip pc)
+            {
+                clip = pc;
+            }
 
-        private PrefabTrack InsertPrefabClipAtFrame(int startFrame, GameObject prefab)
-        {
-            return this;
+            return clip;
         }
 
         public override TrackHandler CreateTrackHandler(GameObject gameObject)

@@ -19,14 +19,14 @@ namespace MochiFramework.Skill.Editor
             return base.CreatePropertyGUI(property);
         }
 
-        protected override void DrawInspector()
+        protected override SerializedProperty OnDrawInspector()
         { 
-            base.DrawInspector();
             //创建动画资源
             animationAssetField = new ObjectField("动画资源");
             animationAssetField.objectType = typeof(UnityEngine.AnimationClip);
             animationAssetField.allowSceneObjects = false;
-            animationAssetField.BindProperty(property.FindPropertyRelative("animationAsset"));
+            SerializedProperty animationAssetProperty = property.FindPropertyRelative("animationAsset");
+            animationAssetField.BindProperty(animationAssetProperty);
             animationAssetField.SetValueWithoutNotify(_animationClip.AnimationAsset);
             animationAssetField.RegisterValueChangedCallback(arg =>
             {
@@ -44,6 +44,8 @@ namespace MochiFramework.Skill.Editor
             animationInfoBox.Add(new Label($"帧率:\t\t{_animationClip.AnimationAsset.frameRate}FPS"));
             animationInfoBox.Add(new Label($"循环:\t\t{_animationClip.AnimationAsset.isLooping}"));
             root.Add(animationInfoBox);
+
+            return animationAssetProperty;
         }
         
     }
