@@ -57,8 +57,11 @@ namespace MochiFramework.Skill.Editor
             root.RegisterCallback<MouseOutEvent>(OnMouseOut);
             root.RegisterCallback<MouseEnterEvent>(OnMouseEnter);
             root.RegisterCallback<FocusEvent>(OnFocus);
+            
+            root.AddManipulator(new ContextualMenuManipulator(OnContextualMenuPopulate));
         }
         
+
         public void Redraw(float frameUnitWidth,object changeObject = null)
         {
             if (this.frameUnitWidth != frameUnitWidth || changeObject == null || changeObject == clip)
@@ -66,6 +69,14 @@ namespace MochiFramework.Skill.Editor
                 this.frameUnitWidth = frameUnitWidth;
                 SetViewPosition(clip.startFrame);
             }
+        }
+        
+        private void OnContextualMenuPopulate(ContextualMenuPopulateEvent evt)
+        {
+            evt.menu.AppendAction("重置长度",_ => ResetDuration());
+            evt.menu.AppendAction("删除",_ => Delete());
+            //阻止事件向父级传播，确保仅对当前Clip进行操作
+            evt.StopPropagation();
         }
         
         private void OnFocus(FocusEvent evt)
@@ -81,13 +92,14 @@ namespace MochiFramework.Skill.Editor
                 isDrag = true;
                 dragOffestPos = (Vector2)root.worldTransform.GetPosition() - evt.mousePosition;
             }
-            else if(evt.button == 1)
-            {
-                GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent("重置长度"), false, ResetDuration);
-                menu.AddItem(new GUIContent("删除"), false, Delete);
-                menu.ShowAsContext();
-            }
+            // else if(evt.button == 1)
+            // {
+            //     GenericMenu menu = new GenericMenu();
+            //     menu.AddItem(new GUIContent("重置长度"), false, ResetDuration);
+            //     menu.AddItem(new GUIContent("删除"), false, Delete);
+            //     menu.ShowAsContext();
+            //     evt.StopPropagation();
+            // }
         }
 
         private void ResetDuration()

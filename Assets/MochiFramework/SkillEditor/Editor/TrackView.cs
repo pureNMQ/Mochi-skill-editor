@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -20,7 +21,7 @@ namespace MochiFramework.Skill.Editor
         private VisualElement trackHeadView;
 
         //位于编辑器右侧，显示轨道中的片段
-        private VisualElement trackClipView;
+        private VisualElement trackClipsView;
 
         private Label trackTitle;
 
@@ -57,33 +58,62 @@ namespace MochiFramework.Skill.Editor
             trackTitle.text = track.TrackName;
 
             //TODO 设置trackClipView的长度为SkillConf的最长长度
-            trackClipView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate()
+            trackClipsView = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(TRACK_CLIP_ASSET_PATH).Instantiate()
                 .ElementAt(0);
-            trackClipView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
-            trackClipParent.Add(trackClipView);
+            trackClipsView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
+            trackClipParent.Add(trackClipsView);
 
             clipViews = new List<ClipView>();
 
-            trackClipView.RegisterCallback<DragUpdatedEvent>(OnTrackClipDragUpdate);
-            trackClipView.RegisterCallback<DragExitedEvent>(OnTrackClipDragExited);
             trackHeadView.RegisterCallback<FocusEvent>(OnTrackHeadFocus);
-            trackHeadView.RegisterCallback<MouseDownEvent>(OnTrackHeadMouseDown);
+            //trackHeadView.RegisterCallback<MouseDownEvent>(OnTrackHeadMouseDown);
+            
+            trackClipsView.RegisterCallback<DragUpdatedEvent>(OnTrackClipsViewDragUpdate);
+            trackClipsView.RegisterCallback<DragExitedEvent>(OnTrackClipsViewDragExited);
+            //trackClipsView.RegisterCallback<MouseDownEvent>(OnTrackClipsViewMouseDown);
+            
+            trackHeadView.AddManipulator(new ContextualMenuManipulator(OnTrackHeadContextualMenuPopulate));
+            trackClipsView.AddManipulator(new ContextualMenuManipulator(OnTrackClipsViewContextualMenuPopulate));
+            //trackClipsView.RegisterCallback<ContextualMenuPopulateEvent>(OnContextualMenuPopulate);
         }
 
-        private void OnTrackHeadMouseDown(MouseDownEvent evt)
+        private void OnTrackClipsViewContextualMenuPopulate(ContextualMenuPopulateEvent evt)
         {
-            if (evt.button == 1)
+            int frame = skillEditor.GetFrameIndexByMousePos(evt.mousePosition);
+                
+            //获取Clip类型
+            Type baseTrackType = track.GetType().BaseType;
+            if(baseTrackType == null) return;
+            Type[] genericTypes = baseTrackType.GetGenericArguments();
+            if (genericTypes.Length <= 0) return;
+            Type clipType = genericTypes[0];
+            List<Type> types = TypeCache.GetTypesDerivedFrom(clipType).ToList();
+            types.Add(clipType);
+            foreach (var type in types)
             {
-                GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent("排序/置于顶层"),false,BringToFront);
-                menu.AddItem(new GUIContent("排序/上移"), false,MoveUp);
-                menu.AddItem(new GUIContent("排序/下移"), false,MoveDown);
-                menu.AddItem(new GUIContent("重命名"),false, () =>
-                    TextPopupWindow.Open(OnRenameConfirmed,"重命名轨道",track.TrackName,"请输入新的轨道名:")
-                    );
-                menu.AddItem(new GUIContent("删除"), false, Delete);
-                menu.ShowAsContext();
+                var clipAttribute = type.GetCustomAttribute<CustomClipAttribute>();
+                if (clipAttribute == null || clipAttribute.IsCreateMenuItem)
+                {
+                    evt.menu.AppendAction(type.Name, (x) =>
+                    {
+                        Clip newClip = Activator.CreateInstance(type) as Clip;
+                        newClip!.duration = newClip.OriginalDuration;
+                        track.InsertClipAtFrame(frame,newClip);
+                        Redraw();
+                    });
+                }
             }
+        }
+
+        private void OnTrackHeadContextualMenuPopulate(ContextualMenuPopulateEvent evt)
+        {
+            evt.menu.AppendAction("排序/置于顶层", _ => BringToFront());
+            evt.menu.AppendAction("排序/上移", _ => MoveUp());
+            evt.menu.AppendAction("排序/下移", _ => MoveDown());
+            evt.menu.AppendAction("重命名", _ =>
+                TextPopupWindow.Open(OnRenameConfirmed,"重命名轨道",track.TrackName,"请输入新的轨道名:")
+            );
+            evt.menu.AppendAction("删除",  _ => Delete());
         }
 
         private void OnRenameConfirmed(string newName)
@@ -103,7 +133,7 @@ namespace MochiFramework.Skill.Editor
             Undo.RegisterFullObjectHierarchyUndo(track.SkillConfig, "Insert Clip");
         }
 
-        private void OnTrackClipDragExited(DragExitedEvent evt)
+        private void OnTrackClipsViewDragExited(DragExitedEvent evt)
         {
             object dragObject = GetDragObject();
             Debug.Log(dragObject);
@@ -126,7 +156,7 @@ namespace MochiFramework.Skill.Editor
             }
         }
 
-        private void OnTrackClipDragUpdate(DragUpdatedEvent evt)
+        private void OnTrackClipsViewDragUpdate(DragUpdatedEvent evt)
         {
             object dragObject = GetDragObject();
             if(dragObject is null) return;
@@ -145,25 +175,25 @@ namespace MochiFramework.Skill.Editor
             if (this.frameUnitWidth != frameUnitWidth)
             {
                 this.frameUnitWidth = frameUnitWidth;
-                trackClipView.style.width = skillEditor.SkillConfig.frameCount * frameUnitWidth;
+                trackClipsView.style.width = skillEditor.SkillConfig.frameCount * frameUnitWidth;
             }
             
 
             if (isClear && (changeObject == null || changeObject == track))
             {
                 clipViews.Clear();
-                trackClipView.Clear();
+                trackClipsView.Clear();
                 //生成新的ClipView
                 foreach(Clip clip in track)
                 {
                     ClipView cv = new ClipView();
-                    cv.Init(skillEditor, trackClipView, track, clip, frameUnitWidth);
+                    cv.Init(skillEditor, trackClipsView, track, clip, frameUnitWidth);
                     clipViews.Add(cv);
                 }
             }
             else if (!isClear && (changeObject == null || changeObject == track))
             {
-                trackClipView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
+                trackClipsView.style.width = track.SkillConfig.frameCount * frameUnitWidth;
                 foreach (var cv in clipViews)
                 {
                     cv.Redraw(frameUnitWidth, null);
@@ -183,7 +213,7 @@ namespace MochiFramework.Skill.Editor
         public void Dispose()
         {
             trackHeadParent.Remove(trackHeadView);
-            trackClipParent.Remove(trackClipView);
+            trackClipParent.Remove(trackClipsView);
         }
 
         private void Delete()

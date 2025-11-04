@@ -6,5 +6,6 @@ namespace MochiFramework.Skill
     public class CustomClipAttribute : Attribute
     {
         public string HexColor = "#757575";
+        public bool IsCreateMenuItem = true;
     }
 }

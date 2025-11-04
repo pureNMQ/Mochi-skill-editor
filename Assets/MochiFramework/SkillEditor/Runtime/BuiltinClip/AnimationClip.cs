@@ -7,7 +7,20 @@ namespace MochiFramework.Skill
     public class AnimationClip : Clip
     {
         public override string ClipName => animationAsset ? animationAsset.name : "NoAnimationClip";
-        public override int OriginalDuration => Mathf.CeilToInt(animationAsset.length * SkillConfig.frameRate);
+        public override int OriginalDuration
+        {
+            get
+            {
+                if (animationAsset != null)
+                {
+                    return Mathf.CeilToInt(animationAsset.length * SkillConfig.frameRate);
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
 
         public UnityEngine.AnimationClip AnimationAsset
         {
