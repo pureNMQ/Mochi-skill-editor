@@ -70,11 +70,9 @@ namespace MochiFramework.Skill.Editor
             
             trackClipsView.RegisterCallback<DragUpdatedEvent>(OnTrackClipsViewDragUpdate);
             trackClipsView.RegisterCallback<DragExitedEvent>(OnTrackClipsViewDragExited);
-            //trackClipsView.RegisterCallback<MouseDownEvent>(OnTrackClipsViewMouseDown);
             
             trackHeadView.AddManipulator(new ContextualMenuManipulator(OnTrackHeadContextualMenuPopulate));
             trackClipsView.AddManipulator(new ContextualMenuManipulator(OnTrackClipsViewContextualMenuPopulate));
-            //trackClipsView.RegisterCallback<ContextualMenuPopulateEvent>(OnContextualMenuPopulate);
         }
 
         private void OnTrackClipsViewContextualMenuPopulate(ContextualMenuPopulateEvent evt)
