@@ -22,15 +22,15 @@ namespace MochiFramework.Skill
         public bool MoveClipToFrame(Clip clip, int startFrame);
         public void RemoveClip(Clip clip);
         public TrackHandler CreateTrackHandler(GameObject gameObject);
-        public Clip this[int index]{ get; }
+        public Clip this[int index] { get; }
         public IEnumerator<Clip> GetEnumerator();
     }
-    
+
     [Serializable]
     public abstract class Track<TClip> : ITrack where TClip : Clip
     {
         public SkillConfig SkillConfig => skillConfig;
-        [SerializeReference,HideInInspector] protected SkillConfig skillConfig;
+        [SerializeReference, HideInInspector] protected SkillConfig skillConfig;
 
         public string TrackName
         {
@@ -38,9 +38,9 @@ namespace MochiFramework.Skill
             set => _trackName = value;
         }
         public int ClipCount => clips?.Count ?? 0;
-        
+
         [SerializeReference] public List<TClip> clips = new List<TClip>();
-        
+
         private string _trackName;
 
         public abstract void Initialize();
@@ -48,23 +48,23 @@ namespace MochiFramework.Skill
         public abstract bool CanConvertToClip(object obj);
         public abstract TClip ConvertToClip(object obj);
         public abstract TrackHandler CreateTrackHandler(GameObject gameObject);
-        
+
         public TClip this[int index] => clips[index];
-        
-        
+
+
         //TODO 插入Clip的逻辑需要修改
         public virtual TClip InsertObjectAtFrame(int startFrame, object obj)
         {
             //TODO 实现插入可转换为Clip的对象
             TClip clip = ConvertToClip(obj);
             if (clip is null) return null;
-            InsertClipAtFrame(startFrame,clip.duration,clip);
+            InsertClipAtFrame(startFrame, clip.duration, clip);
             return clip;
         }
 
-        public virtual void InsertClipAtFrame(int startFrame,int duration, TClip clip)
+        public virtual void InsertClipAtFrame(int startFrame, int duration, TClip clip)
         {
-            if(clip is null) return;
+            if (clip is null) return;
             if (clip.Track != null)
             {
                 clip.Track.RemoveClip(clip);
@@ -76,13 +76,13 @@ namespace MochiFramework.Skill
                 Debug.LogWarning("插入一个片段失败，因为空余长度不足");
                 return;
             }
-
+            clip.startFrame = startFrame;
             clip.Track = this;
             clip.duration = correctionDuration;
             clips.Add(clip);
             clips = clips.OrderBy(c => c.startFrame).ToList();
         }
-        
+
         public void ResetClipDuration(TClip clip)
         {
             if (clips.Contains(clip))
@@ -98,21 +98,21 @@ namespace MochiFramework.Skill
                 }
             }
         }
-        
+
         public virtual IEnumerator<TClip> GetEnumerator()
         {
             return clips.GetEnumerator();
         }
-        
+
         public virtual bool MoveClipToFrame(TClip clip, int startFrame)
         {
             //类型验证，权限范围验证
             if (!clips.Contains(clip)) return false;
-            
+
             //判断插入时长度是否被修正，如果被修正则不可以移动
             int correctionDuration = CalculateCorrectionDuration(startFrame, clip.duration, clip);
             if (clip.duration != correctionDuration) return false;
-            
+
             clip.startFrame = startFrame;
             clips = clips.OrderBy(clip => clip.startFrame).ToList();
             return true;
@@ -123,13 +123,13 @@ namespace MochiFramework.Skill
             clips.Remove(clip);
         }
 
-        public virtual int CalculateCorrectionDuration(int startFrame, int duration,params Clip[] ignoreClips)
+        public virtual int CalculateCorrectionDuration(int startFrame, int duration, params Clip[] ignoreClips)
         {
             int correctionDuration = duration;
             foreach (var item in clips)
             {
-                if(ignoreClips is not null && ignoreClips.Contains(item)) continue;
-                
+                if (ignoreClips is not null && ignoreClips.Contains(item)) continue;
+
                 //不允许插入到另一个Clip中间
                 //情况一:插入Clip的起始点位于另一个Clip中
                 if (startFrame >= item.startFrame && startFrame < item.EndFrame)
@@ -146,7 +146,7 @@ namespace MochiFramework.Skill
                     }
                 }
             }
-            
+
             //情况三:插入Clip的结束点位于Track长度之外
             if (startFrame + duration > skillConfig.frameCount)
             {
@@ -159,8 +159,8 @@ namespace MochiFramework.Skill
 
             return correctionDuration;
         }
-        
-        
+
+
         //显式接口
         Clip ITrack.this[int index] => this[index];
         IEnumerator<Clip> ITrack.GetEnumerator()
@@ -169,13 +169,13 @@ namespace MochiFramework.Skill
         }
         Clip ITrack.InsertObjectAtFrame(int startFrame, object obj)
         {
-            return InsertObjectAtFrame(startFrame,obj);
+            return InsertObjectAtFrame(startFrame, obj);
         }
 
         void ITrack.InsertClipAtFrame(int startFrame, Clip clip)
         {
             if (clip is not TClip tClip) return;
-            InsertClipAtFrame(startFrame,tClip.duration,tClip);
+            InsertClipAtFrame(startFrame, tClip.duration, tClip);
         }
 
         bool ITrack.MoveClipToFrame(Clip clip, int startFrame)

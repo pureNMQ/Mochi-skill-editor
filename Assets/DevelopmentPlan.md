@@ -5,3 +5,5 @@
 
 ## 修复缺陷
 - [ ] 移动Clip时鼠标超出ClipView的范围就会失效，预期需要ClipView在TrackClipsView范围内都可以跟随鼠标移动
+- [x] 修复Clip在拖拽插入时，位置归0的问题
+- [x] 修复SlotMapper在编辑器中修改后，无法序列化的问题
