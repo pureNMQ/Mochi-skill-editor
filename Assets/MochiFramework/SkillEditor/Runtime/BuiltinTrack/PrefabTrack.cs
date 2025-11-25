@@ -9,7 +9,7 @@ namespace MochiFramework.Skill
     {
         public override void Initialize()
         {
-            
+
         }
 
         public override bool CanConvertToClip(object obj)
@@ -26,7 +26,7 @@ namespace MochiFramework.Skill
                 clip.Prefab = go;
                 clip.duration = clip.OriginalDuration;
             }
-            else if(obj is PrefabClip pc)
+            else if (obj is PrefabClip pc)
             {
                 clip = pc;
             }
@@ -36,7 +36,7 @@ namespace MochiFramework.Skill
 
         public override TrackHandler CreateTrackHandler(GameObject gameObject)
         {
-            return null;
+            return new PrefabTrackHandler(this, gameObject);
         }
     }
 }

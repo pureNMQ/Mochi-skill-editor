@@ -86,6 +86,7 @@ namespace MochiFramewrok.Skill.Editor
                 objectField.RegisterValueChangedCallback((evt) =>
                 {
                     map.SlotTransforms[index] = (Transform)evt.newValue;
+                    EditorUtility.SetDirty(_slotMapper);
                 });
                 foldout.Add(objectField);
             }

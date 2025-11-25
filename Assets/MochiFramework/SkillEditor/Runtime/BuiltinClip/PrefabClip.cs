@@ -17,7 +17,19 @@ namespace MochiFramework.Skill
             set => _prefab = value;
         }
 
+        public SlotEntry PrefabSlot
+        {
+            get => _prefabSlot;
+            set => _prefabSlot = value;
+        }
+        public bool DestroyOnEnd
+        {
+            get => _destroyOnEnd;
+            set => _destroyOnEnd = value;
+        }
+
         [SerializeField] private GameObject _prefab;
         [SerializeField] private SlotEntry _prefabSlot;
+        [SerializeField] private bool _destroyOnEnd = true;
     }
 }

@@ -2080,7 +2080,7 @@ MonoBehaviour:
   slotMaps:
   - SlotDefinition: {fileID: 11400000, guid: 019dfbec9ad6a7648a0bc4517b954f40, type: 2}
     SlotTransforms:
-    - {fileID: 0}
+    - {fileID: 668006632354280349}
 --- !u!1 &3921334144448749991
 GameObject:
   m_ObjectHideFlags: 0
