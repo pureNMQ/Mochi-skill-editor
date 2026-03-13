@@ -83,6 +83,7 @@ namespace MochiFramework.Skill
             clips = clips.OrderBy(c => c.startFrame).ToList();
         }
 
+
         public void ResetClipDuration(TClip clip)
         {
             if (clips.Contains(clip))
@@ -117,6 +118,7 @@ namespace MochiFramework.Skill
             clips = clips.OrderBy(clip => clip.startFrame).ToList();
             return true;
         }
+
 
         public virtual void RemoveClip(TClip clip)
         {
@@ -155,6 +157,7 @@ namespace MochiFramework.Skill
                 {
                     correctionDuration = offset;
                 }
+                Debug.Log($"起始位置{startFrame}+长度{duration}超过帧上限，当前帧上限为{skillConfig.frameCount}，偏移量{offset}");
             }
 
             return correctionDuration;
@@ -203,6 +206,5 @@ namespace MochiFramework.Skill
                 RemoveClip(clip as TClip);
             }
         }
-
     }
 }
