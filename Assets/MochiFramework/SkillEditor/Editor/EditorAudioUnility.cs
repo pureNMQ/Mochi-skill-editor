@@ -25,7 +25,6 @@ public static class EditorAudioUnility
     [InitializeOnLoadMethod]
     private static void Ready()
     {
-        Debug.Log("初始化");
         AudioTrackHandler.PlayPreviewClip += (sender, clip) =>
         {
             PlayPreviewClip(clip,0);

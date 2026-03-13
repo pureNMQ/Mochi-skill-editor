@@ -5,7 +5,7 @@ using UnityEditor.UIElements;
 using UnityEditor.SceneManagement;
 using System.Collections.Generic;
 using System.Reflection;
-using MochiFramework.Skill.MochiFramework.SkillEditor.Editor;
+using UnityEditor.Callbacks;
 
 namespace MochiFramework.Skill.Editor
 {
@@ -37,16 +37,16 @@ namespace MochiFramework.Skill.Editor
             // The style will be applied to the VisualElement and all of its children.
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/MochiFramework/SkillEditor/Editor/SkillEditor.uss");
             root.styleSheets.Add(styleSheet);
-            
+
             skillEditorConfig = new SkillEditorConfig();
-            
+
             InitTopMenu();
             InitTimeShaft();
             InitTrackView();
             InitController();
 
             Undo.undoRedoEvent += OnUndoRedo;
-            skillConfig = null;
+            //skillConfig = null;
             CreateSkillPreviewPlayer();
             _skillPreviewPlayer.ShowPreviewCharacter();
         }
@@ -65,7 +65,7 @@ namespace MochiFramework.Skill.Editor
                     break;
             }
         }
-        
+
         #region TopMenu
         private const string previewScenePath = "Assets/MochiFramework/SkillEditor/Editor/Scenes/SkillEditorScene.unity";
         private const string previewCharacterRootPath = "PreviewCharacterRoot";
@@ -80,6 +80,8 @@ namespace MochiFramework.Skill.Editor
         private ObjectField PreviewPrefabField;
         private ObjectField SkillConfigField;
 
+        private Button NewSkillConfigButton;
+
         private void InitTopMenu()
         {
             PreviewSceneButton = root.Q<Button>(nameof(PreviewSceneButton));
@@ -87,16 +89,30 @@ namespace MochiFramework.Skill.Editor
             SkillInfoButton = root.Q<Button>(nameof(SkillInfoButton));
             PreviewPrefabField = root.Q<ObjectField>(nameof(PreviewPrefabField));
             SkillConfigField = root.Q<ObjectField>(nameof(SkillConfigField));
+            NewSkillConfigButton = root.Q<Button>(nameof(NewSkillConfigButton));
 
             PreviewSceneButton.clicked += OnClickPreviewSceneButton;
             GameSceneButton.clicked += OnClickGameSceneButton;
             SkillInfoButton.clicked += OnClickSkillInfoButton;
+            NewSkillConfigButton.clicked += OnClickNewSkillConfig;
 
             PreviewPrefabField.objectType = typeof(GameObject);
             PreviewPrefabField.RegisterValueChangedCallback(OnPreviewPrefabValueChanged);
 
             SkillConfigField.objectType = typeof(SkillConfig);
             SkillConfigField.RegisterValueChangedCallback(OnSkillConfigValueChanged);
+        }
+
+        private void OnClickNewSkillConfig()
+        {
+            //选择新技能配置的目录和文件名
+            string path = EditorUtility.SaveFilePanelInProject("New Skill Config", "NewSkillConfig", "asset", "Save Skill Config");
+            if (string.IsNullOrEmpty(path)) return;
+            path = path.Replace(Application.dataPath, "Assets");
+            SkillConfig config = ScriptableObject.CreateInstance<SkillConfig>();
+            AssetDatabase.CreateAsset(config, path);
+            AssetDatabase.SaveAssets();
+            SetSkillConfig(config);
         }
 
         //切换至预览场景
@@ -122,8 +138,8 @@ namespace MochiFramework.Skill.Editor
 
         private void OnClickSkillInfoButton()
         {
-            if(skillConfig is null) return;
-            
+            if (skillConfig is null) return;
+
             Selection.activeObject = skillConfig;
         }
 
@@ -147,7 +163,7 @@ namespace MochiFramework.Skill.Editor
         // private Label SelectFrameTip;
         // private Label MoveClipStartTip;
         // private Label MoveClipEndTip;
-        
+
         /// <summary>
         /// 轨道容器容器的X位置（局部坐标）
         /// </summary>
@@ -158,14 +174,14 @@ namespace MochiFramework.Skill.Editor
         {
             TimeShaft = root.Q<IMGUIContainer>(nameof(TimeShaft));
             SelectLine = root.Q<IMGUIContainer>(nameof(SelectLine));
-            
+
             // SelectFrameTip = root.Q<Label>(nameof(SelectFrameTip));
             // MoveClipStartTip = root.Q<Label>(nameof(MoveClipStartTip));
             // MoveClipEndTip = root.Q<Label>(nameof(MoveClipEndTip));
 
             TimeShaft.onGUIHandler += DrawTimeShaft;
             SelectLine.onGUIHandler += DrawSelectLine;
-            
+
             TimeShaft.RegisterCallback<MouseMoveEvent>(OnMouseMoveTimeShaft);
             TimeShaft.RegisterCallback<MouseDownEvent>(OnMouseDownTimeShaft);
             TimeShaft.RegisterCallback<MouseUpEvent>(OnMouseUpTimeShaft);
@@ -202,11 +218,11 @@ namespace MochiFramework.Skill.Editor
                 SelectFrame = GetFrameIndexByMousePos(evt.mousePosition);
             }
         }
-        
+
         private void DrawSelectLine()
         {
             if (skillConfig == null) return;
-            
+
             Handles.BeginGUI();
             Handles.color = Color.white;
             float posX = SelectFrame * skillEditorConfig.frameUnitWidth - contentOffsetX;
@@ -215,13 +231,13 @@ namespace MochiFramework.Skill.Editor
             Vector2 pos = default;
             Vector2 size = default;
             Rect rect = default;
-            
+
             if (posX >= TrackContainerMask.contentRect.width)
             {
                 pos = default;
                 size = default;
             }
-            else if(posX + skillEditorConfig.frameUnitWidth > TrackContainerMask.contentRect.width)
+            else if (posX + skillEditorConfig.frameUnitWidth > TrackContainerMask.contentRect.width)
             {
                 pos = new Vector2(posX, 0);
                 size = new Vector2(TrackContainerMask.contentRect.width - posX, sizeY);
@@ -236,16 +252,16 @@ namespace MochiFramework.Skill.Editor
                 pos = new Vector2(0, 0);
                 size = new Vector2(skillEditorConfig.frameUnitWidth + posX, sizeY);
             }
-            
+
             rect = new Rect(pos, size);
             Handles.DrawSolidRectangleWithOutline(rect, new Color(1, 1, 1, 0.1f), new Color(1, 1, 1, 0.1f));
             Handles.EndGUI();
             if (skillEditorConfig.selectLineDragging)
             {
-                DrawFrameTip(SelectFrame,$"{SelectFrame}",new Color(0,0,0,0.5f),Color.white);
+                DrawFrameTip(SelectFrame, $"{SelectFrame}", new Color(0, 0, 0, 0.5f), Color.white);
             }
 
-            
+
         }
 
         private void DrawTimeShaft()
@@ -310,16 +326,16 @@ namespace MochiFramework.Skill.Editor
             Handles.EndGUI();
         }
 
-        private void DrawFrameTip(int frame,string text,Color backgroundColor,Color textColor)
+        private void DrawFrameTip(int frame, string text, Color backgroundColor, Color textColor)
         {
             Handles.BeginGUI();
-            Handles.color =textColor;
+            Handles.color = textColor;
             float textOffset = text.Length * 3f;
             float posX = frame * skillEditorConfig.frameUnitWidth - contentOffsetX;
             Vector3 labelPos = new Vector3(posX + skillEditorConfig.frameUnitWidth / 2f - textOffset, TimeShaft.contentRect.size.y / 2);
-                
-            Rect backgroundRect = new Rect(new Vector2(labelPos.x - 2,labelPos.y - 10), new Vector2(text.Length * 6 + 5, 20));
-            Handles.DrawSolidRectangleWithOutline(backgroundRect,backgroundColor, backgroundColor);
+
+            Rect backgroundRect = new Rect(new Vector2(labelPos.x - 2, labelPos.y - 10), new Vector2(text.Length * 6 + 5, 20));
+            Handles.DrawSolidRectangleWithOutline(backgroundRect, backgroundColor, backgroundColor);
             Handles.Label(labelPos, text);
         }
 
@@ -346,43 +362,43 @@ namespace MochiFramework.Skill.Editor
             //NOTE 此处注册两个是事件是由于Scroller的样式由一对父子视窗元素决定，两者其中之一发生变化Scroller就需要修改
             TrackContainerMask.RegisterCallback<GeometryChangedEvent>(OnTrackContainerChanged);
             TrackContainer.RegisterCallback<GeometryChangedEvent>(OnTrackContainerChanged);
-            
+
             //TODO 鼠标操作事件
             Content.RegisterCallback<WheelEvent>(OnWheelContent);
-            
-            
+
+
             VerticalScroller.valueChanged += OnVerticalScrollerChange;
             HorizontalScroller.valueChanged += OnHorizontalScrollerChange;
         }
-        
+
         private void OnTrackContainerChanged(GeometryChangedEvent evt)
         {
             float viewWidth = TrackContainerMask.contentRect.width;
             float viewHeight = TrackContainerMask.contentRect.height;
-            
+
             float contentWidth = TrackContainer.contentRect.width + 1;
             float contentHeight = TrackContainer.contentRect.height + 40;
-            
-            HorizontalScroller.highValue = Mathf.Max(0,contentWidth - viewWidth);
-            VerticalScroller.highValue = Mathf.Max(0,contentHeight - viewHeight);
-            
-            HorizontalScroller.Adjust(viewWidth/contentWidth);
-            VerticalScroller.Adjust(viewHeight/contentHeight);
+
+            HorizontalScroller.highValue = Mathf.Max(0, contentWidth - viewWidth);
+            VerticalScroller.highValue = Mathf.Max(0, contentHeight - viewHeight);
+
+            HorizontalScroller.Adjust(viewWidth / contentWidth);
+            VerticalScroller.Adjust(viewHeight / contentHeight);
         }
-        
+
         private void OnWheelContent(WheelEvent evt)
         {
             if (evt.ctrlKey)
             {
                 WheelVerticalMove(evt.delta.y);
             }
-            else if(evt.shiftKey)
+            else if (evt.shiftKey)
             {
                 WheelHorizontalMove(evt.delta.x);
             }
             else
             {
-                WheelScale(evt.delta.y);    
+                WheelScale(evt.delta.y);
             }
         }
 
@@ -421,40 +437,39 @@ namespace MochiFramework.Skill.Editor
             Vector3 position = TrackMenuContainer.transform.position;
             position.y = -value;
             TrackMenuContainer.transform.position = position;
-            
+
             position = TrackContainer.transform.position;
             position.y = -value;
             TrackContainer.transform.position = position;
         }
-        
+
         private void UpdateTrackViewSize()
         {
             TrackContainer.style.width = TotalFrame * skillEditorConfig.frameUnitWidth;
         }
-        
+
         /// <summary>
         /// 当Track数量发生变化或者更换技能配置文件时，请将isClear设为true
         /// </summary>
         /// <param name="isClear"></param>
-        public void UpdateTrack(bool isClear = true,object changeObject = null)
+        public void UpdateTrack(bool isClear = true, object changeObject = null)
         {
             if (isClear || skillConfig is null)
             {
                 ClearTrack();
-                if (skillConfig == null) return;
+                if (skillConfig == null || skillConfig.tracks == null) return;
                 foreach (var track in skillConfig.tracks)
                 {
                     TrackView tv = new TrackView(track, TrackMenuContainer, TrackContainer, this);
                     trackViews.Add(tv);
-                    tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
+                    tv.Redraw(skillEditorConfig.frameUnitWidth, isClear, changeObject);
                 }
             }
-            else if(trackViews is not null)
+            else if (trackViews is not null)
             {
                 foreach (var tv in trackViews)
                 {
-                    tv.Redraw(skillEditorConfig.frameUnitWidth,isClear,changeObject);
-                    Debug.Log("重绘");
+                    tv.Redraw(skillEditorConfig.frameUnitWidth, isClear, changeObject);
                 }
             }
         }
@@ -482,18 +497,18 @@ namespace MochiFramework.Skill.Editor
         #endregion
 
         #region Console
-        
+
         private Button AddTrackButton;
-        
+
         private Button StartFrameButton;
         private Button PreviousFrameButton;
         private Button PlayOrStopButton;
         private Button NextFrameButton;
         private Button EndFrameButton;
-        
+
         private IntegerField SelectionFrameField;
         private IntegerField TotalFrameField;
-        
+
 
         private void InitController()
         {
@@ -506,7 +521,7 @@ namespace MochiFramework.Skill.Editor
 
             SelectionFrameField = root.Q<IntegerField>(nameof(SelectionFrameField));
             TotalFrameField = root.Q<IntegerField>(nameof(TotalFrameField));
-            
+
             AddTrackButton.clicked += OnClickedAddTrack;
             StartFrameButton.clicked += OnClickedStartFrame;
             PreviousFrameButton.clicked += OnClickedPreviousFrame;
@@ -517,7 +532,7 @@ namespace MochiFramework.Skill.Editor
             SelectionFrameField.RegisterValueChangedCallback<int>(OnSelectionFrameFieldChange);
             TotalFrameField.RegisterValueChangedCallback<int>(OnTotalFrameFieldChange);
         }
-        
+
         private void OnTotalFrameFieldChange(ChangeEvent<int> evt)
         {
             if (evt.newValue < 1)
@@ -548,17 +563,17 @@ namespace MochiFramework.Skill.Editor
 
         private void OnClickedAddTrack()
         {
-            if(SkillConfig == null) return;
+            if (SkillConfig == null) return;
             GenericMenu menu = new GenericMenu();
             //遍历所有程序集中的Track子类
             foreach (var type in TypeCache.GetTypesDerivedFrom(typeof(Track<>)))
             {
                 CustomTrackAttribute info = type.GetCustomAttribute<CustomTrackAttribute>() ?? new CustomTrackAttribute();
-                
+
                 string name = string.IsNullOrEmpty(info.DefaultName) ? type.Name : info.DefaultName;
-                
+
                 //如果是唯一轨道,检查当前技能,如果已经存在,则跳过
-                if (info.IsUnique)
+                if (info.IsUnique && skillConfig.tracks != null)
                 {
                     bool isExist = false;
                     foreach (var track in skillConfig.tracks)
@@ -571,12 +586,12 @@ namespace MochiFramework.Skill.Editor
                     }
                     if (isExist) continue;
                 }
-            
+
                 //添加到菜单
                 menu.AddItem(new GUIContent(name), false,
                     () =>
                     {
-                        if(skillConfig == null) return;
+                        if (skillConfig == null) return;
                         if (skillConfig.tracks == null)
                         {
                             skillConfig.tracks = new List<ITrack>();
@@ -609,7 +624,7 @@ namespace MochiFramework.Skill.Editor
         {
             PreviewStop();
             SelectFrame++;
-            
+
         }
 
 
@@ -640,6 +655,19 @@ namespace MochiFramework.Skill.Editor
         private SkillConfig skillConfig;
         private SkillEditorConfig skillEditorConfig;
 
+        [OnOpenAssetAttribute(1)]
+        private static bool OpenSkillAsset(int instanceID)
+        {
+            Object obj = EditorUtility.InstanceIDToObject(instanceID);
+            if (obj is SkillConfig skill)
+            {
+                SkillEditor skillEditor = GetWindow<SkillEditor>();
+                skillEditor.SetSkillConfig(skill);
+                return true;
+            }
+
+            return false;
+        }
         public int SelectFrame
         {
             get => skillEditorConfig.selectFrame;
@@ -651,7 +679,7 @@ namespace MochiFramework.Skill.Editor
                 skillEditorConfig.selectFrame = value;
                 SelectionFrameField.value = value;
                 SelectLine.MarkDirtyLayout();
-                
+
                 if (!_skillPreviewPlayer.IsPlaying)
                 {
                     _skillPreviewPlayer.Evaluate(value);
@@ -708,14 +736,14 @@ namespace MochiFramework.Skill.Editor
             SelectFrame = 0;
             HorizontalScroller.value = 0;
             VerticalScroller.value = 0;
-            
+
             RedrawEditor();
         }
 
         #endregion
 
         #region Preview
-        
+
         private SkillPreviewPlayer _skillPreviewPlayer;
 
         private void CreateSkillPreviewPlayer()
@@ -725,21 +753,21 @@ namespace MochiFramework.Skill.Editor
             _skillPreviewPlayer.OnPause += () => PlayOrStopButton.RemoveFromClassList("playing");
             _skillPreviewPlayer.OnStop += () => PlayOrStopButton.RemoveFromClassList("playing");
         }
-        
+
 
         private void PreviewStop()
         {
-            
+
             _skillPreviewPlayer.StopCurrentSkill();
         }
-        
+
         private void Update()
         {
             if (!IsPreview)
             {
                 PreviewStop();
             }
-            
+
             _skillPreviewPlayer.Update();
 
             if (_skillPreviewPlayer.IsPlaying)
@@ -765,6 +793,11 @@ namespace MochiFramework.Skill.Editor
             return index;
         }
 
+        public float GetLocalPosByMousePos(Vector2 mousePos)
+        {
+            return TrackContainerMask.WorldToLocal(mousePos).x + contentOffsetX;
+        }
+
 
         public void RedrawEditor()
         {
@@ -776,7 +809,7 @@ namespace MochiFramework.Skill.Editor
                 }
                 TotalFrameField.value = skillConfig.frameCount;
             }
-            
+
             TimeShaft.MarkDirtyRepaint();
             SelectLine.MarkDirtyRepaint();
             UpdateTrack();
@@ -793,14 +826,14 @@ namespace MochiFramework.Skill.Editor
         public void UpdateInspector()
         {
             //TODO SetDirty()没有效果,目前是重新创建一个_agencyInspectorObject
-            
+
             //EditorUtility.SetDirty(_agencyInspectorObject);
             if (_agencyInspectorObject != null)
             {
                 ShowObjectOnInspector(_agencyInspectorObject.target);
             }
         }
-        
+
         #endregion
     }
 

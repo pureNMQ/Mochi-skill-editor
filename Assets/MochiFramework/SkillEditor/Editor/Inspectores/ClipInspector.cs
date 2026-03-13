@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
@@ -10,7 +11,7 @@ namespace MochiFramework.Skill.Editor
     {
         private IntegerField startFrameField;
         private IntegerField durationField;
-        
+
         protected VisualElement root;
         protected SkillEditor skillEditor;
         protected Clip clip;
@@ -18,14 +19,31 @@ namespace MochiFramework.Skill.Editor
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            skillEditor = SkillEditor.GetWindow<SkillEditor>();
+            if (SkillEditor.HasOpenInstances<SkillEditor>())
+            {
+                skillEditor = SkillEditor.GetWindow<SkillEditor>();
+            }
             clip = property.boxedValue as Clip;
+            if (clip == null) return null;
+
             this.property = property;
             root = new VisualElement();
             DrawInspector();
+
             return root;
         }
-        protected virtual void DrawInspector()
+
+
+        /// <summary>
+        /// 在基础检视器绘制完成后
+        /// </summary>
+        /// <returns>返回最后一个自定义渲染的字段</returns>
+        protected virtual SerializedProperty OnDrawInspector()
+        {
+            return property.FindPropertyRelative("duration");
+        }
+
+        protected void DrawInspector()
         {
             Label label = new Label(clip.ClipName);
             root.Add(label);
@@ -36,7 +54,7 @@ namespace MochiFramework.Skill.Editor
             startFrameField.isDelayed = true;
             startFrameField.RegisterValueChangedCallback(arg =>
             {
-                if(arg.previousValue == arg.newValue) return;
+                if (arg.previousValue == arg.newValue) return;
                 //禁止修改为负值
                 if (arg.newValue < 0)
                 {
@@ -46,7 +64,6 @@ namespace MochiFramework.Skill.Editor
                 if (clip.Track.MoveClipToFrame(clip, arg.newValue))
                 {
                     UpdateSkillEditor();
-                    Debug.Log("更新技能编辑器");
                 }
                 else
                 {
@@ -54,9 +71,9 @@ namespace MochiFramework.Skill.Editor
                 }
             });
             root.Add(startFrameField);
-            
-            //创建时长字段
-            //TODO 总帧数暂时不支持修改
+
+            // //创建时长字段
+            // //TODO 总帧数暂时不支持修改
             durationField = new IntegerField("总帧数");
             durationField.BindProperty(property.FindPropertyRelative("duration"));
             durationField.SetValueWithoutNotify(clip.duration);
@@ -69,7 +86,7 @@ namespace MochiFramework.Skill.Editor
                     durationField.value = arg.previousValue;
                     return;
                 }
-                
+
                 //当值发生变化时更新技能编辑器
                 if (arg.previousValue != arg.newValue)
                 {
@@ -77,14 +94,22 @@ namespace MochiFramework.Skill.Editor
                 }
             });
             root.Add(durationField);
+
+            var childProp = OnDrawInspector();
+
+            while (childProp.NextVisible(false))
+            {
+                PropertyField field = new PropertyField(childProp);
+                root.Add(new PropertyField(childProp));
+                root.Bind(childProp.serializedObject);
+            }
         }
-        
+
         protected void UpdateSkillEditor()
         {
             if (skillEditor != null)
             {
-                skillEditor.UpdateTrack(false,clip);
-                Debug.Log("更新技能编辑器轨道");
+                skillEditor.UpdateTrack(false, clip);
             }
         }
     }

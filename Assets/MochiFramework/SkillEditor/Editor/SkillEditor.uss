@@ -54,3 +54,12 @@
     border-bottom-left-radius: 3px;
     height: 20px;
 }
+
+.ClipEdge {
+    flex-basis: 5px;
+    flex-shrink: 0;
+}
+
+.ClipEdge:hover {
+    background-color: rgba(255, 255, 255, 0.69);
+}

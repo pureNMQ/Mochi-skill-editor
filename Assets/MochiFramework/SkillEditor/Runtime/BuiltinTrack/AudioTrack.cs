@@ -24,53 +24,72 @@ namespace MochiFramework.Skill
             return false;
         }
 
-        public override AudioClip InsertClipAtFrame(int startFrame, object obj)
+        public override AudioClip ConvertToClip(object obj)
         {
+            AudioClip clip = null;
             if (obj is UnityEngine.AudioClip unityAudioClip)
             {
-                return InsertAudioClipAtFrame(startFrame, unityAudioClip);
+                clip = new AudioClip();
+                clip.Track = this;
+                clip.AudioAsset = unityAudioClip;
+                clip.duration = clip.OriginalDuration;
+                Debug.Log(unityAudioClip.length);
             }
-            else if (obj is AudioClip audioClip)
+            else
             {
-                return InsertAudioClipAtFrame(startFrame, audioClip);
+                clip = obj as AudioClip;
             }
 
-            return null;
+            return clip;
         }
 
-        private AudioClip InsertAudioClipAtFrame(int startFrame, UnityEngine.AudioClip unityAudioClip)
-        {
-             int duration = Mathf.CeilToInt(unityAudioClip.length * skillConfig.frameRate);
-             if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
-             {
-                 AudioClip clip = AudioClip.CreateAudioClip(this,startFrame, unityAudioClip,correctionDuration); 
-                 Debug.Log($"插入一个音频片段{unityAudioClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
-                 clips.Add(clip);
-                 clips = clips.OrderBy(clip => clip.startFrame).ToList();
-                 return clip;
-             }
-             return null;
-        }
-        
-        private AudioClip InsertAudioClipAtFrame(int startFrame, AudioClip audioClip)
-        {
-            if (CanInsertClipAtFrame(startFrame, audioClip.duration, out int correctionDuration))
-            {
-                if (correctionDuration != audioClip.duration)
-                {
-                    Debug.LogWarning("轨道空间太少");
-                    return null;
-                }
-                
-                audioClip.Track.RemoveClip(audioClip);
-                audioClip.Track = this;
-                audioClip.startFrame = startFrame;
-                clips.Add(audioClip);
-            }
-            
-            
-            return null;
-        }
+        // public override AudioClip InsertClipAtFrame(int startFrame, object obj)
+        // {
+        //     if (obj is UnityEngine.AudioClip unityAudioClip)
+        //     {
+        //         return InsertAudioClipAtFrame(startFrame, unityAudioClip);
+        //     }
+        //     else if (obj is AudioClip audioClip)
+        //     {
+        //         return InsertAudioClipAtFrame(startFrame, audioClip);
+        //     }
+        //
+        //     return null;
+        // }
+        //
+        // private AudioClip InsertAudioClipAtFrame(int startFrame, UnityEngine.AudioClip unityAudioClip)
+        // {
+        //      int duration = Mathf.CeilToInt(unityAudioClip.length * skillConfig.frameRate);
+        //      if (CanInsertClipAtFrame(startFrame, duration, out int correctionDuration))
+        //      {
+        //          AudioClip clip = AudioClip.CreateAudioClip(this,startFrame, unityAudioClip,correctionDuration); 
+        //          Debug.Log($"插入一个音频片段{unityAudioClip.name}，起始帧为{startFrame}，原始长度为{duration}，修正长度为{correctionDuration},轨道:{clip.Track}");
+        //          clips.Add(clip);
+        //          clips = clips.OrderBy(clip => clip.startFrame).ToList();
+        //          return clip;
+        //      }
+        //      return null;
+        // }
+        //
+        // private AudioClip InsertAudioClipAtFrame(int startFrame, AudioClip audioClip)
+        // {
+        //     if (CanInsertClipAtFrame(startFrame, audioClip.duration, out int correctionDuration))
+        //     {
+        //         if (correctionDuration != audioClip.duration)
+        //         {
+        //             Debug.LogWarning("轨道空间太少");
+        //             return null;
+        //         }
+        //         
+        //         audioClip.Track.RemoveClip(audioClip);
+        //         audioClip.Track = this;
+        //         audioClip.startFrame = startFrame;
+        //         clips.Add(audioClip);
+        //     }
+        //     
+        //     
+        //     return null;
+        // }
 
         public override TrackHandler CreateTrackHandler(GameObject gameObject)
         {

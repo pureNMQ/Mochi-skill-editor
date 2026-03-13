@@ -7,7 +7,20 @@ namespace MochiFramework.Skill
     public class AnimationClip : Clip
     {
         public override string ClipName => animationAsset ? animationAsset.name : "NoAnimationClip";
-        public override int OriginalDuration => Mathf.CeilToInt(animationAsset.length * animationAsset.frameRate);
+        public override int OriginalDuration
+        {
+            get
+            {
+                if (animationAsset != null)
+                {
+                    return Mathf.CeilToInt(animationAsset.length * SkillConfig.frameRate);
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
 
         public UnityEngine.AnimationClip AnimationAsset
         {
@@ -17,15 +30,15 @@ namespace MochiFramework.Skill
 
         [SerializeField] protected UnityEngine.AnimationClip animationAsset;
 
-        public static AnimationClip CreateAnimationClip(AnimationTrack track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
-        {
-            AnimationClip clip = new AnimationClip();
-            clip.track = track;
-            clip.startFrame = startFrame;
-            clip.animationAsset = unityAnimationClip;
-            clip.duration = duration;
-            return clip;
-        }
+        // public static AnimationClip CreateAnimationClip(AnimationTrack track,int startFrame, UnityEngine.AnimationClip unityAnimationClip,int duration)
+        // {
+        //     AnimationClip clip = new AnimationClip();
+        //     clip.track = track;
+        //     clip.startFrame = startFrame;
+        //     clip.animationAsset = unityAnimationClip;
+        //     clip.duration = duration;
+        //     return clip;
+        // }
         
         public override string ToString()
         {

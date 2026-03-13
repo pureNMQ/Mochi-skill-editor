@@ -19,14 +19,14 @@ namespace MochiFramework.Skill.Editor
             return base.CreatePropertyGUI(property);
         }
 
-        protected override void DrawInspector()
+        protected override SerializedProperty OnDrawInspector()
         { 
-            base.DrawInspector();
             //创建动画资源
             animationAssetField = new ObjectField("动画资源");
             animationAssetField.objectType = typeof(UnityEngine.AnimationClip);
             animationAssetField.allowSceneObjects = false;
-            animationAssetField.BindProperty(property.FindPropertyRelative("animationAsset"));
+            SerializedProperty animationAssetProperty = property.FindPropertyRelative("animationAsset");
+            animationAssetField.BindProperty(animationAssetProperty);
             animationAssetField.SetValueWithoutNotify(_animationClip.AnimationAsset);
             animationAssetField.RegisterValueChangedCallback(arg =>
             {
@@ -39,11 +39,21 @@ namespace MochiFramework.Skill.Editor
             
             //显示动画资源的信息
             animationInfoBox = new Box();
-            animationInfoBox.Add(new Label($"动画名称:\t{_animationClip.AnimationAsset.name}"));
-            animationInfoBox.Add(new Label($"动画长度:\t{_animationClip.AnimationAsset.length :0.00}s"));
-            animationInfoBox.Add(new Label($"帧率:\t\t{_animationClip.AnimationAsset.frameRate}FPS"));
-            animationInfoBox.Add(new Label($"循环:\t\t{_animationClip.AnimationAsset.isLooping}"));
+            if (_animationClip.AnimationAsset != null)
+            {
+                animationInfoBox.Add(new Label($"动画名称:\t{_animationClip.AnimationAsset.name}"));
+                animationInfoBox.Add(new Label($"动画长度:\t{_animationClip.AnimationAsset.length:0.00}s"));
+                animationInfoBox.Add(new Label($"帧率:\t\t{_animationClip.AnimationAsset.frameRate}FPS"));
+                animationInfoBox.Add(new Label($"循环:\t\t{_animationClip.AnimationAsset.isLooping}"));
+            }
+            else
+            {
+                animationInfoBox.Add(new Label("动画资源为空"));
+            }
+
             root.Add(animationInfoBox);
+
+            return animationAssetProperty;
         }
         
     }
